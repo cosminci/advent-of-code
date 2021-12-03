@@ -11,7 +11,7 @@ object Day3 {
 
   def powerConsumption(binaryNums: Seq[String]): Int = {
     val (epsilonRate, gammaRate) =
-      mostAndLeastSignificantBits(binaryNums).foldLeft("", "") {
+      leastAndMostFrequentBits(binaryNums).foldLeft("", "") {
         case ((epsilonRate, gammaRate), Seq(epsilonBit, gammaBit)) =>
           (epsilonRate :+ epsilonBit, gammaRate :+ gammaBit)
       }
@@ -20,23 +20,17 @@ object Day3 {
 
   def lifeSupport(binaryNums: Seq[String]): Int = {
     @annotation.tailrec
-    def oxygen(nums: Seq[String], idx: Int): String = {
-      val msb = mostAndLeastSignificantBits(nums).map(_.last)
-      val remaining = nums.filter(n => n(idx) == msb(idx))
-      if (remaining.length == 1) remaining.head else oxygen(remaining, idx + 1)
+    def dfs(nums: Seq[String], idx: Int, freqFn: Seq[String] => Seq[Char]): String = {
+      val frequentBit = freqFn(nums)
+      val remaining = nums.filter(n => n(idx) == frequentBit(idx))
+      if (remaining.length == 1) remaining.head else dfs(remaining, idx + 1, freqFn)
     }
 
-    @annotation.tailrec
-    def co2Scrubber(nums: Seq[String], idx: Int): String = {
-      val lsb = mostAndLeastSignificantBits(nums).map(_.head)
-      val remaining = nums.filter(n => n(idx) == lsb(idx))
-      if (remaining.length == 1) remaining.head else co2Scrubber(remaining, idx + 1)
-    }
-
-    Integer.parseInt(oxygen(binaryNums, 0), 2) * Integer.parseInt(co2Scrubber(binaryNums, 0), 2)
+    Integer.parseInt(dfs(binaryNums, 0, nums => leastAndMostFrequentBits(nums).map(_.last)), 2) *
+      Integer.parseInt(dfs(binaryNums, 0, nums => leastAndMostFrequentBits(nums).map(_.head)), 2)
   }
 
-  private def mostAndLeastSignificantBits(binaryNums: Seq[String]) =
+  private def leastAndMostFrequentBits(binaryNums: Seq[String]) =
     binaryNums.head.indices
       .map { i =>
         binaryNums

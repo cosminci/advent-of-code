@@ -19,20 +19,21 @@ object Day3 {
   }
 
   def lifeSupport(binaryNums: Seq[String]): Int = {
-    def oxygenRating(nums: Seq[String], idx: Int): String = {
+    @annotation.tailrec
+    def oxygen(nums: Seq[String], idx: Int): String = {
       val msb = mostAndLeastSignificantBits(nums).map(_.last)
       val remaining = nums.filter(n => n(idx) == msb(idx))
-      Option.when(remaining.length == 1)(remaining.head).getOrElse(oxygenRating(remaining, idx + 1))
+      if (remaining.length == 1) remaining.head else oxygen(remaining, idx + 1)
     }
 
+    @annotation.tailrec
     def co2Scrubber(nums: Seq[String], idx: Int): String = {
       val lsb = mostAndLeastSignificantBits(nums).map(_.head)
       val remaining = nums.filter(n => n(idx) == lsb(idx))
-      Option.when(remaining.length == 1)(remaining.head).getOrElse(co2Scrubber(remaining, idx + 1))
+      if (remaining.length == 1) remaining.head else co2Scrubber(remaining, idx + 1)
     }
 
-    Integer.parseInt(oxygenRating(binaryNums, 0), 2) *
-      Integer.parseInt(co2Scrubber(binaryNums, 0), 2)
+    Integer.parseInt(oxygen(binaryNums, 0), 2) * Integer.parseInt(co2Scrubber(binaryNums, 0), 2)
   }
 
   private def mostAndLeastSignificantBits(binaryNums: Seq[String]) =

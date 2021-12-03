@@ -15,16 +15,15 @@ object Day2 {
   }
 
   def finalPosition(commands: Seq[(String, Int)]): Int = {
-    val (horizontalPosition, depth) = commands.foldLeft(0, 0) {
-      case ((horizontalPosition, depth), (command, units)) =>
-        command match {
-          case "forward" =>
-            (horizontalPosition + units, depth)
-          case "down" =>
-            (horizontalPosition, depth + units)
-          case _ =>
-            (horizontalPosition, depth - units)
-        }
+    val (horizontalPosition, depth) = commands.foldLeft(0, 0) { case ((horizontalPosition, depth), (command, units)) =>
+      command match {
+        case "forward" =>
+          (horizontalPosition + units, depth)
+        case "down" =>
+          (horizontalPosition, depth + units)
+        case _ =>
+          (horizontalPosition, depth - units)
+      }
     }
     horizontalPosition * depth
   }

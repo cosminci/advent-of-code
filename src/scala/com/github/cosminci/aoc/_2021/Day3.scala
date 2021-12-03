@@ -22,7 +22,7 @@ object Day3 {
     @annotation.tailrec
     def dfs(nums: Seq[String], idx: Int, freqFn: Seq[String] => Seq[Char]): String = {
       val frequentBit = freqFn(nums)
-      val remaining = nums.filter(n => n(idx) == frequentBit(idx))
+      val remaining   = nums.filter(n => n(idx) == frequentBit(idx))
       if (remaining.length == 1) remaining.head else dfs(remaining, idx + 1, freqFn)
     }
 

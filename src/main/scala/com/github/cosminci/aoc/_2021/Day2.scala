@@ -10,8 +10,8 @@ object Day2 {
         val Array(command, magnitude) = str.split(" ")
         (command, magnitude.toInt)
       }
-    println(finalPosition(commands))
-    println(finalPositionWithAim(commands))
+    println(s"Part I: ${finalPosition(commands)}")
+    println(s"Part II: ${finalPositionWithAim(commands)}")
   }
 
   def finalPosition(commands: Seq[(String, Int)]): Int = {
@@ -42,4 +42,5 @@ object Day2 {
     }
     horizontalPosition * depth
   }
+
 }

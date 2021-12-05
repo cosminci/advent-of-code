@@ -7,8 +7,8 @@ import scala.annotation.tailrec
 object Day3 {
   def main(args: Array[String]): Unit = {
     val binaryNums = utils.loadInputAsStrings("2021/day3.txt")
-    println(powerConsumption(binaryNums))
-    println(lifeSupport(binaryNums))
+    println(s"Part I: ${powerConsumption(binaryNums)}")
+    println(s"Part II: ${lifeSupport(binaryNums)}")
   }
 
   def powerConsumption(binaryNums: Seq[String]): Int =
@@ -31,4 +31,5 @@ object Day3 {
 
   private def bitsByFrequency(bits: Seq[Char]): (Int, Int) =
     Option.when(bits.count(_ == '1') >= bits.length / 2.0)((1, 0)).getOrElse((0, 1))
+
 }

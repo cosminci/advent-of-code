@@ -15,7 +15,8 @@ object Day4 {
       .toSeq
 
     val scores = boardScores(nums, boards)
-    println(s"Part I: ${scores.head}, Part II: ${scores.last}")
+    println(s"Part I: ${scores.head}")
+    println(s"Part II: ${scores.last}")
   }
 
   def boardScores(nums: Seq[Int], boards: Seq[Seq[Seq[Int]]]): Seq[Int] =

@@ -9,4 +9,12 @@ package object utils {
 
   def loadInputAsStrings(path: String): Seq[String] =
     Using.resource(Source.fromResource(path))(_.getLines().toSeq)
+
+  def neighbours(grid: Seq[Seq[Int]], r: Int, c: Int): Seq[(Int, Int)] = {
+    val upper = Option.when(r > 0)((r - 1, c))
+    val lower = Option.when(r < grid.length - 1)((r + 1, c))
+    val left  = Option.when(c > 0)((r, c - 1))
+    val right = Option.when(c < grid(r).length - 1)((r, c + 1))
+    Seq.empty ++ upper ++ lower ++ left ++ right
+  }
 }

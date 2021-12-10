@@ -11,8 +11,8 @@ object Day7 {
   }
 
   def costToAlignToMedian(positions: Seq[Int]): Int = {
-    val sorted = positions.sorted
-    val median = (sorted(sorted.length / 2) + sorted(sorted.length / 2 + 1)) / 2
+    val (sorted, n) = (positions.sorted, positions.length)
+    val median = Option.when(n % 2 == 1)(sorted(n / 2)).getOrElse((sorted(n / 2) + sorted(n / 2 + 1)) / 2)
     positions.foldLeft(0)((cost, p) => cost + math.abs(p - median))
   }
 

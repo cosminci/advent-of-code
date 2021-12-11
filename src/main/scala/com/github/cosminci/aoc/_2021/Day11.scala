@@ -25,27 +25,28 @@ object Day11 {
   }
 
   private def update(grid: Array[Array[Int]]): Int = {
-    val coords = for {
-      x <- grid.indices
-      y <- grid(x).indices
-    } yield (x, y)
+    val toVisit = mutable.Queue.from {
+      for {
+        x <- grid.indices
+        y <- grid(x).indices
+        _ = grid(x)(y) += 1
+        if grid(x)(y) == 10
+      } yield (x, y)
+    }
 
-    coords.foreach { case (x, y) => grid(x)(y) += 1 }
-    val visited = mutable.Set.empty[(Int, Int)]
-    val toVisit = mutable.PriorityQueue.from(coords.filter { case (x, y) => grid(x)(y) == 10 })
-
+    val visited = mutable.Set.from(toVisit)
     while (toVisit.nonEmpty) {
       val (x, y) = toVisit.dequeue()
-      visited.add((x, y))
       grid(x)(y) = 0
-      utils.neighbours(grid.length - 1, grid.head.length - 1, x, y, includeDiagonals = true).foreach { case (x1, y1) =>
-        if (!visited.contains((x1, y1))) {
-          grid(x1)(y1) += 1
-          if (grid(x1)(y1) == 10) {
-            visited.add((x1, y1))
-            toVisit.enqueue((x1, y1))
+      utils.neighbours(grid.length - 1, grid.head.length - 1, x, y, includeDiagonals = true).foreach {
+        case (x1, y1) =>
+          if (!visited.contains((x1, y1))) {
+            grid(x1)(y1) += 1
+            if (grid(x1)(y1) == 10) {
+              visited.add((x1, y1))
+              toVisit.enqueue((x1, y1))
+            }
           }
-        }
       }
     }
 

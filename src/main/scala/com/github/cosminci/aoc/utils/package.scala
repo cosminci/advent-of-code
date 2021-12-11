@@ -1,5 +1,7 @@
 package com.github.cosminci.aoc
 
+import cats.syntax.traverse._
+
 import scala.io.Source
 import scala.util.Using
 
@@ -11,16 +13,10 @@ package object utils {
     Using.resource(Source.fromResource(path))(_.getLines().toSeq)
 
   def neighbours(n: Int, m: Int, r: Int, c: Int, includeDiagonals: Boolean = false): Seq[(Int, Int)] = {
-    val upper = Option.when(r > 0)((r - 1, c))
-    val lower = Option.when(r < n)((r + 1, c))
-    val left  = Option.when(c > 0)((r, c - 1))
-    val right = Option.when(c < m)((r, c + 1))
+    def collectWithinBounds(deltas: Seq[(Int, Int)]): Seq[(Int, Int)] =
+      deltas.collect { case (dr, dc) if r + dr >= 0 && r + dr <= n && c + dc >= 0 && c + dc <= m => (r + dr, c + dc) }
 
-    val upperLeft  = Option.when(includeDiagonals && r > 0 && c > 0)((r - 1, c - 1))
-    val upperRight = Option.when(includeDiagonals && r > 0 && c < m)((r - 1, c + 1))
-    val lowerLeft  = Option.when(includeDiagonals && r < n && c > 0)((r + 1, c - 1))
-    val lowerRight = Option.when(includeDiagonals && r < n && c < m)((r + 1, c + 1))
-
-    Seq.empty ++ upper ++ lower ++ left ++ right ++ upperLeft ++ upperRight ++ lowerLeft ++ lowerRight
+    collectWithinBounds(Seq((-1, 0), (0, -1), (0, 1), (1, 0))) ++
+      Option.when(includeDiagonals)(collectWithinBounds(Seq((-1, -1), (-1, 1), (1, -1), (1, 1)))).sequence.flatten
   }
 }

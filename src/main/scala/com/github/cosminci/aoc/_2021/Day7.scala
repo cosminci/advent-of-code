@@ -12,16 +12,13 @@ object Day7 {
 
   def costToAlignToMedian(positions: Seq[Int]): Int = {
     val (sorted, n) = (positions.sorted, positions.length)
-    val median = Option.when(n % 2 == 1)(sorted(n / 2)).getOrElse((sorted(n / 2) + sorted(n / 2 + 1)) / 2)
+    val median      = Option.when(n % 2 == 1)(sorted(n / 2)).getOrElse((sorted(n / 2) + sorted(n / 2 + 1)) / 2)
     positions.foldLeft(0)((cost, p) => cost + math.abs(p - median))
   }
 
   def costToAlignToMean(positions: Seq[Int]): Int = {
     def gauss(n: Int) = n * (n + 1) / 2
-
-    val mean = (positions.sum * 1.0 / positions.length).toInt
-    Seq(mean, mean + 1).map { optimal =>
-      positions.foldLeft(0)((cost, p) => cost + gauss(math.abs(p - optimal)))
-    }.min
+    val mean          = positions.sum / positions.length
+    positions.foldLeft(0)((cost, p) => cost + gauss(math.abs(p - mean)))
   }
 }

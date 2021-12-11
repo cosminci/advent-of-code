@@ -9,22 +9,22 @@ object Day11 {
   def main(args: Array[String]): Unit = {
     val grid = utils.loadInputAsStrings("2021/day11.txt").map(_.toCharArray.map(_ - '0')).toArray
 
-    println(s"Part I: ${countFlashes(grid.map(_.clone()), days = 100)}")
+    println(s"Part I: ${countTotalFlashes(grid.map(_.clone()), days = 100)}")
     println(s"Part II: ${judgementDay(grid)}")
   }
 
-  def countFlashes(grid: Array[Array[Int]], days: Int): Int =
-    (1 to days).foldLeft(0)((count, _) => count + update(grid))
+  def countTotalFlashes(grid: Array[Array[Int]], days: Int): Int =
+    (1 to days).foldLeft(0)((count, _) => count + countDayFlashes(grid))
 
   def judgementDay(grid: Array[Array[Int]]): Int = {
     @tailrec
     def dfs(day: Int): Int =
-      if (update(grid) == grid.length * grid.head.length) day else dfs(day + 1)
+      if (countDayFlashes(grid) == grid.length * grid.head.length) day else dfs(day + 1)
 
     dfs(day = 1)
   }
 
-  private def update(grid: Array[Array[Int]]): Int = {
+  private def countDayFlashes(grid: Array[Array[Int]]): Int = {
     val toVisit = mutable.Queue.from {
       for {
         x <- grid.indices
@@ -33,8 +33,8 @@ object Day11 {
         if grid(x)(y) == 10
       } yield (x, y)
     }
-
     val visited = mutable.Set.from(toVisit)
+
     while (toVisit.nonEmpty) {
       val (x, y) = toVisit.dequeue()
       grid(x)(y) = 0

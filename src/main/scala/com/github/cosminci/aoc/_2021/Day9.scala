@@ -13,21 +13,23 @@ object Day9 {
   }
 
   def riskLevel(grid: Seq[Seq[Int]]): Int = {
+    val (n, m) = (grid.length - 1, grid.head.length - 1)
     val lowPoints = for {
       r <- grid.indices
       c <- grid(r).indices
-      if utils.neighbours(grid, r, c).forall { case (r1, c1) => grid(r)(c) < grid(r1)(c1) }
+      if utils.neighbours(n, m, r, c).forall { case (r1, c1) => grid(r)(c) < grid(r1)(c1) }
     } yield grid(r)(c) + 1
 
     lowPoints.sum
   }
 
   def largestBasinsProduct(grid: Seq[Seq[Int]]): Int = {
+    val (n, m) = (grid.length - 1, grid.head.length - 1)
     val visited = mutable.Set.empty[(Int, Int)]
 
     def dfs(r: Int, c: Int): Int =
       1 + utils
-        .neighbours(grid, r, c)
+        .neighbours(n, m, r, c)
         .collect {
           case (r1, c1) if grid(r1)(c1) != 9 && !visited.contains((r1, c1)) =>
             visited.add((r1, c1))

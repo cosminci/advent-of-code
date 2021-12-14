@@ -19,4 +19,6 @@ package object utils {
     collectWithinBounds(Seq((-1, 0), (0, -1), (0, 1), (1, 0))) ++
       Option.when(includeDiagonals)(collectWithinBounds(Seq((-1, -1), (-1, 1), (1, -1), (1, 1)))).sequence.flatten
   }
+
+  def counter[T](s: Iterable[T]): Map[T, Long] = s.groupMapReduce(identity)(_ => 1L)(_ + _)
 }

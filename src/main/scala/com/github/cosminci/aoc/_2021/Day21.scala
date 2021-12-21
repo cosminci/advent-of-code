@@ -41,7 +41,7 @@ object Day21 {
         else rolls.foldLeft(0L, 0L) { case ((wins1, wins2), rollSum) =>
           val newPos1   = (pos1 + rollSum) % 10
           val newScore1 = score1 + newPos1 + 1
-          val (w2, w1) = dfs(pos2, score2, newPos1, newScore1)
+          val (w2, w1)  = dfs(pos2, score2, newPos1, newScore1)
           (wins1 + w1, wins2 + w2)
         }
       })

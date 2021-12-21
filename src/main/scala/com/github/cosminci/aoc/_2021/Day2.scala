@@ -42,5 +42,4 @@ object Day2 {
     }
     horizontalPosition * depth
   }
-
 }

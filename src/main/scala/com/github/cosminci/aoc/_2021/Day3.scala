@@ -31,5 +31,4 @@ object Day3 {
 
   private def bitsByFrequency(bits: Seq[Char]): (Int, Int) =
     Option.when(bits.count(_ == '1') >= bits.length / 2.0)((1, 0)).getOrElse((0, 1))
-
 }

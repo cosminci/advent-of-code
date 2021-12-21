@@ -27,5 +27,4 @@ object Day4 {
         val newScores     = won.map(board => num * board.flatten.filterNot(newMarked.contains).sum)
         (scores ++ newScores, newMarked, active)
     }._1
-
 }

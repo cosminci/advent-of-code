@@ -18,5 +18,4 @@ object Day5 {
         val y = y1 to y2 by Option.when(y1 < y2)(1).getOrElse(-1)
         x.zipAll(y, x1, y1).foldLeft(counter)((counter, point) => counter.updated(point, counter(point) + 1))
     }.count { case (_, count) => count >= 2 }
-
 }

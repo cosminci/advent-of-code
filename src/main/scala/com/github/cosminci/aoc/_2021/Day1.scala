@@ -11,5 +11,4 @@ object Day1 {
 
   def countDepthIncreases(measurements: Seq[Int], step: Int): Int =
     (step until measurements.length).count(i => measurements(i) > measurements(i - step))
-
 }

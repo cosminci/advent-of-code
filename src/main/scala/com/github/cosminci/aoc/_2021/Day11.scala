@@ -3,54 +3,53 @@ package com.github.cosminci.aoc._2021
 import com.github.cosminci.aoc.utils
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 object Day11 {
   def main(args: Array[String]): Unit = {
-    val grid = utils.loadInputAsStrings("2021/day11.txt").map(_.toCharArray.map(_ - '0')).toArray
+    val gridSeq = utils.loadInputAsStrings("2021/day11.txt").map(_.toCharArray.map(_ - '0'))
+    val (m, n)  = (gridSeq.length, gridSeq.head.length)
+    val gridMap = (0 until m).flatMap(r => (0 until n).map(c => (r, c) -> gridSeq(r)(c))).toMap
 
-    println(s"Part I: ${countTotalFlashes(grid.map(_.clone()), days = 100)}")
-    println(s"Part II: ${judgementDay(grid)}")
+    println(s"Part I: ${countTotalFlashes(gridMap, m, n, days = 100)}")
+    println(s"Part II: ${judgementDay(gridMap, m, n)}")
   }
 
-  def countTotalFlashes(grid: Array[Array[Int]], days: Int): Int =
-    (1 to days).foldLeft(0)((count, _) => count + countDayFlashes(grid))
+  type State = (Map[(Int, Int), Int], Set[(Int, Int)])
 
-  def judgementDay(grid: Array[Array[Int]]): Int = {
+  def countTotalFlashes(grid: Map[(Int, Int), Int], m: Int, n: Int, days: Int): Int =
+    (1 to days).foldLeft(grid, 0) { case ((prevGrid, count), _) =>
+      val (grid, flashed) = countDayFlashes(prevGrid, m, n)
+      (grid, count + flashed.size)
+    }._2
+
+  def judgementDay(grid: Map[(Int, Int), Int], m: Int, n: Int): Int = {
     @tailrec
-    def dfs(day: Int): Int =
-      if (countDayFlashes(grid) == grid.length * grid.head.length) day else dfs(day + 1)
-
-    dfs(day = 1)
+    def dfs(prevGrid: Map[(Int, Int), Int], day: Int): Int = {
+      val (grid, flashed) = countDayFlashes(prevGrid, m, n)
+      if (flashed.size == m * n) day else dfs(grid, day + 1)
+    }
+    dfs(grid, day = 1)
   }
 
-  private def countDayFlashes(grid: Array[Array[Int]]): Int = {
-    val toVisit = mutable.Queue.from {
-      for {
-        x <- grid.indices
-        y <- grid(x).indices
-        _ = grid(x)(y) += 1
-        if grid(x)(y) == 10
-      } yield (x, y)
-    }
-    val visited = mutable.Set.from(toVisit)
+  private def countDayFlashes(prevGrid: Map[(Int, Int), Int], m: Int, n: Int): State = {
+    val grid    = prevGrid.map { case (k, v) => (k, v + 1) }
+    val toVisit = prevGrid.keys.filter { case (x, y) => grid((x, y)) == 10 }.toSeq
+    val visited = Set.from(toVisit)
 
-    while (toVisit.nonEmpty) {
-      val (x, y) = toVisit.dequeue()
-      grid(x)(y) = 0
-      utils.neighbours(grid.length - 1, grid.head.length - 1, x, y, includeDiagonals = true).foreach {
-        case (x1, y1) =>
-          if (!visited.contains((x1, y1))) {
-            grid(x1)(y1) += 1
-            if (grid(x1)(y1) == 10) {
-              visited.add((x1, y1))
-              toVisit.enqueue((x1, y1))
-            }
+    def flash(state: State, octopus: (Int, Int)): State = {
+      val ((grid, visited), (x, y)) = (state, octopus)
+      utils.neighbours(m - 1, n - 1, x, y, includeDiagonals = true).foldLeft(grid.updated((x, y), 0), visited) {
+        case ((grid, visited), (x, y)) =>
+          if (visited.contains((x, y)))
+            (grid, visited)
+          else {
+            val newGrid = grid.updated((x, y), grid((x, y)) + 1)
+            if (newGrid((x, y)) == 10) flash((newGrid, visited + ((x, y))), (x, y))
+            else (newGrid, visited)
           }
       }
     }
 
-    visited.size
+    toVisit.foldLeft(grid, visited)(flash)
   }
-
 }

@@ -2,7 +2,8 @@ package com.github.cosminci.aoc._2021
 
 import com.github.cosminci.aoc.utils
 
-import scala.collection.mutable
+import scala.annotation.tailrec
+import scala.collection.immutable.TreeSet
 import scala.math.Integral.Implicits._
 
 object Day15 {
@@ -16,22 +17,22 @@ object Day15 {
   }
 
   def lowestTotalRisk(grid: Seq[Seq[Int]]): Int = {
-    val (n, m)  = (grid.length - 1, grid.head.length - 1)
-    val toVisit = mutable.PriorityQueue((0, 0, 0))
-    val visited = mutable.Set((0, 0))
+    val (n, m) = (grid.length - 1, grid.head.length - 1)
 
-    while (toVisit.nonEmpty) {
-      val (risk, x0, y0) = toVisit.dequeue()
-      if (x0 == n && y0 == m) return -risk
+    @tailrec
+    def dfs(toVisit: TreeSet[(Int, Int, Int)], visited: Set[(Int, Int)]): Int = {
+      val curr @ (risk, x, y) = toVisit.last
+      if (x == n && y == m) return -risk
 
-      utils.neighbours(n, m, x0, y0).collect {
-        case (x1, y1) if !visited.contains((x1, y1)) =>
-          toVisit.enqueue((risk - grid(x1)(y1), x1, y1))
-          visited.add((x1, y1))
+      val (newToVisit, newVisited) = utils.neighbours(n, m, x, y).foldLeft(toVisit, visited) {
+        case ((toVisit, visited), (x, y)) =>
+          if (visited.contains((x, y))) (toVisit, visited)
+          else (toVisit + ((risk - grid(x)(y), x, y)), visited + ((x, y)))
       }
+      dfs(newToVisit - curr, newVisited)
     }
 
-    Int.MaxValue
+    dfs(toVisit = TreeSet((0, 0, 0)), visited = Set((0, 0)))
   }
 
   def generateCompleteMap(grid: Seq[Seq[Int]]): Seq[Seq[Int]] = {

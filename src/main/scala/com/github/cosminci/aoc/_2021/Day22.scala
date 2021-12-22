@@ -12,7 +12,7 @@ object Day22 {
 
   case class Range(low: Int, high: Int)
   case class Command(turnOn: Boolean, cuboid: Cuboid)
-  case class Cuboid(x: Range, y: Range, z: Range)
+  case class Cuboid(xRange: Range, yRange: Range, zRange: Range)
 
   def processCommands(commands: Seq[Command]): Seq[Cuboid] =
     commands.foldLeft(Seq.empty[Cuboid]) { case (prevCuboids, Command(turnOn, cuboid)) =>
@@ -20,7 +20,9 @@ object Day22 {
       cuboids ++ Option.when(turnOn)(cuboid)
     }
 
-  private def overlap(r1: Range, r2: Range) = r1.low <= r2.high && r2.low <= r1.high
+  private val disjoint = (r1: Range, r2: Range) => r1.low > r2.high || r2.low > r1.high
+  private def disjoint(c1: Cuboid, c2: Cuboid): Boolean =
+    Seq((c1.xRange, c2.xRange), (c1.yRange, c2.yRange), (c1.zRange, c2.zRange)).exists(disjoint.tupled)
 
   private def splitRange(r1: Range, r2: Range): Seq[Range] =
     if (r1.low < r2.low) Range(r1.low, r2.low - 1) +: splitRange(Range(r2.low, r1.high), r2)
@@ -28,21 +30,20 @@ object Day22 {
     else Seq(r1)
 
   private def removeOverlap(c1: Cuboid, c2: Cuboid): Seq[Cuboid] =
-    if (!(overlap(c1.x, c2.x) && overlap(c1.y, c2.y) && overlap(c1.z, c2.z)))
-      Seq(c1)
+    if (disjoint(c1, c2)) Seq(c1)
     else for {
-      xr <- splitRange(c1.x, c2.x)
-      yr <- splitRange(c1.y, c2.y)
-      zr <- splitRange(c1.z, c2.z)
-      if !(overlap(xr, c2.x) && overlap(yr, c2.y) && overlap(zr, c2.z))
-    } yield Cuboid(xr, yr, zr)
+      xRange <- splitRange(c1.xRange, c2.xRange)
+      yRange <- splitRange(c1.yRange, c2.yRange)
+      zRange <- splitRange(c1.zRange, c2.zRange)
+      subCuboid = Cuboid(xRange, yRange, zRange) if disjoint(subCuboid, c2)
+    } yield subCuboid
 
   private def length(r: Range): Long  = r.high - r.low + 1
-  private def volume(c: Cuboid): Long = Seq(c.x, c.y, c.z).map(length).product
+  private def volume(c: Cuboid): Long = Seq(c.xRange, c.yRange, c.zRange).map(length).product
 
   private def isInitialization(c: Command): Boolean = {
-    val ranges = Seq(c.cuboid.x, c.cuboid.y, c.cuboid.z)
-    (ranges.map(_.low) ++ ranges.map(_.high)).forall(v => v >= -50 && v <= 50)
+    val ranges = Seq(c.cuboid.xRange, c.cuboid.yRange, c.cuboid.zRange)
+    (ranges.map(_.low) ++ ranges.map(_.high)).forall(pos => pos >= -50 && pos <= 50)
   }
 
   private def parseLine(s: String): Command = {

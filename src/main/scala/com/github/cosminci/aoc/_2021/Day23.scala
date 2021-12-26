@@ -2,7 +2,6 @@ package com.github.cosminci.aoc._2021
 
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
-import scala.util.Random
 
 object Day23 {
   def main(args: Array[String]): Unit = {
@@ -20,29 +19,29 @@ object Day23 {
   private val hallwayPos = Seq(0, 1, 3, 5, 7, 9, 10)
 
   case class Board(rooms: Map[Int, String], hallway: Map[Int, Char])
-  case class State(cost: Int, id: Int, board: Board)
-  type SearchState = (TreeSet[State], Map[Board, Int])
+  case class State(cost: Int, id: Int, board: Board)  // ID is used to guarantee uniqueness in TreeSet
+  type SearchState = (TreeSet[State], Map[Board, Int], Int)
 
   def minimumCost(start: Map[Int, String], goal: Map[Int, String]): Int = {
     val rSize = goal.values.head.length
 
     @tailrec
     def dfs(searchState: SearchState): Int = {
-      val (toVisit, visited)         = searchState
+      val (toVisit, visited, nextId) = searchState
       val State(totalCost, _, board) = toVisit.head
 
       if (board.rooms == goal) totalCost
       else dfs((roomEnters(board, rSize) ++ roomExits(board, rSize))
-        .foldLeft(toVisit.tail, visited) { case ((toVisit, visited), (nextState, cost)) =>
+        .foldLeft(toVisit.tail, visited, nextId) { case ((toVisit, visited, nextId), (nextState, cost)) =>
           val nextCost = totalCost + cost
-          if (visited.get(nextState).exists(_ <= nextCost)) (toVisit, visited)
-          else (toVisit + State(nextCost, id = Random.nextInt, nextState), visited.updated(nextState, nextCost))
+          if (visited.get(nextState).exists(_ <= nextCost)) (toVisit, visited, nextId)
+          else (toVisit + State(nextCost, id = nextId, nextState), visited.updated(nextState, nextCost), nextId + 1)
         })
     }
 
     val toVisit = TreeSet(State(cost = 0, id = 0, Board(start, Map.empty)))(Ordering.by(s => (s.cost, s.id)))
     val visited = Map(Board(start, Map.empty) -> 0)
-    dfs(toVisit, visited)
+    dfs(toVisit, visited, 1)
   }
 
   private def roomExits(board: Board, rSize: Int): Iterable[(Board, Int)] = for {

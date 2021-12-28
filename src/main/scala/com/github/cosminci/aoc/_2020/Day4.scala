@@ -54,5 +54,4 @@ object Day4 {
         fields.get(name).exists(rule.isValid)
       }
     }
-
 }

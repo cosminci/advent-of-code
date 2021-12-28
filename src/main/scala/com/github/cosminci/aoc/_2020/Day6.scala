@@ -22,5 +22,4 @@ object Day6 {
 
   private def sumAnswerIntersections(inputData: Seq[Seq[String]]): Int =
     inputData.map(_.reduce(_ intersect _).length).sum
-
 }

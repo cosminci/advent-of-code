@@ -18,5 +18,4 @@ object Day3 {
       .takeWhile(_ < grid.length)
       .zipWithIndex
       .count { case (row, idx) => grid(row)((dy * idx) % grid.head.length) == '#' }
-
 }

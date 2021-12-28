@@ -26,5 +26,4 @@ object Day1 {
         (sums(targetSum - n) :+ n).product
     }
   }
-
 }

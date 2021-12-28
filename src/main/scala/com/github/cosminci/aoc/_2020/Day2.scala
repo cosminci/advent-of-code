@@ -29,5 +29,4 @@ object Day2 {
     inputData.count { case Rule(position1, position2, char, pw) =>
       (pw.charAt(position1 - 1) == char) ^ (pw.charAt(position2 - 1) == char)
     }
-
 }

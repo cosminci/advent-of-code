@@ -19,13 +19,13 @@ object Day2 {
 
   case class Rule(n1: Int, n2: Int, char: Char, pw: String)
 
-  private def countValidRangePasswords(inputData: Seq[Rule]): Int =
+  def countValidRangePasswords(inputData: Seq[Rule]): Int =
     inputData.count { case Rule(minCount, maxCount, char, pw) =>
       val count = pw.count(_ == char)
       count >= minCount && count <= maxCount
     }
 
-  private def countValidPositionPasswords(inputData: Seq[Rule]): Int =
+  def countValidPositionPasswords(inputData: Seq[Rule]): Int =
     inputData.count { case Rule(position1, position2, char, pw) =>
       (pw.charAt(position1 - 1) == char) ^ (pw.charAt(position2 - 1) == char)
     }

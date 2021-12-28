@@ -12,7 +12,7 @@ object Day3 {
     println(s"Part 2: ${slopes.map { case (dy, dx) => countTreesForSlope(grid, dy, dx) }.product }")
   }
 
-  private def countTreesForSlope(grid: Seq[String], dy: Int, dx: Int): Long =
+  def countTreesForSlope(grid: Seq[String], dy: Int, dx: Int): Long =
     Iterator
       .iterate(0)(_ + dx)
       .takeWhile(_ < grid.length)

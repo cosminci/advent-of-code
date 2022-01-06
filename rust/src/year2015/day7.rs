@@ -6,7 +6,7 @@ use crate::utils;
 
 #[derive(Debug)]
 enum Gate {
-    DIRECT(Input),
+    BUFFER(Input),
     OR(Input, Input),
     AND(Input, Input),
     NOT(Input),
@@ -26,29 +26,30 @@ pub fn solve() {
     let wire_a_value = wire_signal(&mut HashMap::new(), &wires, &String::from("a"));
     println!("Part 1: {}", wire_a_value);
 
-    wires.insert(String::from("b"), Gate::DIRECT(Input::SIGNAL(wire_a_value)));
+    wires.insert(String::from("b"), Gate::BUFFER(Input::SIGNAL(wire_a_value)));
     println!("Part 2: {}", wire_signal(&mut HashMap::new(), &wires, &String::from("a")));
 }
 
 fn wire_signal(mem: &mut HashMap<String, u16>, wires: &HashMap<String, Gate>, wire: &String) -> u16 {
     match wires.get(wire.as_str()).unwrap() {
-        Gate::DIRECT(input) =>
-            input_value(mem, wires, input),
+        Gate::BUFFER(input) =>
+            eval(input, wires, mem),
         Gate::NOT(input) =>
-            !input_value(mem, wires, input),
+            !eval(input, wires, mem),
         Gate::AND(input1, input2) =>
-            input_value(mem, wires, input1) & input_value(mem, wires, input2),
+            eval(input1, wires, mem) & eval(input2, wires, mem),
         Gate::OR(input1, input2) =>
-            input_value(mem, wires, input1) | input_value(mem, wires, input2),
+            eval(input1, wires, mem) | eval(input2, wires, mem),
         Gate::LSHIFT(input, value) =>
-            input_value(mem, wires, input) << value,
+            eval(input, wires, mem) << value,
         Gate::RSHIFT(input, value) =>
-            input_value(mem, wires, input) >> value
+            eval(input, wires, mem) >> value
     }
 }
 
-fn input_value(mem: &mut HashMap<String, u16>, wires: &HashMap<String, Gate>, input: &Input) -> u16 {
+fn eval(input: &Input, wires: &HashMap<String, Gate>, mem: &mut HashMap<String, u16>) -> u16 {
     match input {
+        Input::SIGNAL(value) => *value,
         Input::WIRE(src) =>
             match mem.get(src) {
                 Some(value) => *value,
@@ -58,7 +59,6 @@ fn input_value(mem: &mut HashMap<String, u16>, wires: &HashMap<String, Gate>, in
                     result
                 }
             }
-        Input::SIGNAL(value) => *value
     }
 }
 
@@ -73,7 +73,7 @@ fn parse_wires() -> HashMap<String, Gate> {
 
 fn parse_gate(gate_vec: Vec<&str>) -> Gate {
     if gate_vec.len() == 1 {
-        Gate::DIRECT(parse_input(gate_vec[0]))
+        Gate::BUFFER(parse_input(gate_vec[0]))
     } else if gate_vec.len() == 2 {
         Gate::NOT(parse_input(gate_vec[1]))
     } else {

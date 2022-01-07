@@ -9,14 +9,13 @@ pub fn solve() {
 }
 
 fn count_special_chars(strings: &Vec<String>) -> (usize, usize, usize) {
-   strings.iter().fold((0, 0, 0), |(quote, escape, ascii), s| {
+    strings.iter().fold((0, 0, 0), |(quote, escape, ascii), s| {
         dfs(s, 0, quote, escape, ascii)
     })
 }
 
 fn dfs(s: &String, idx: usize, quote: usize, escape: usize, ascii: usize) -> (usize, usize, usize) {
-    if idx == s.len() { (quote, escape, ascii) }
-    else {
+    if idx == s.len() { (quote, escape, ascii) } else {
         match s.chars().nth(idx).unwrap() {
             '"' => dfs(s, idx + 1, quote + 1, escape, ascii),
             '\\' =>

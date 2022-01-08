@@ -4,6 +4,16 @@ use itertools::Itertools;
 
 use crate::utils;
 
+pub fn solve() {
+    let mut wires = parse_wires();
+
+    let wire_a_value = wire_signal(&mut HashMap::new(), &wires, &String::from("a"));
+    println!("Part 1: {}", wire_a_value);
+
+    wires.insert(String::from("b"), Gate::BUFFER(Input::SIGNAL(wire_a_value)));
+    println!("Part 2: {}", wire_signal(&mut HashMap::new(), &wires, &String::from("a")));
+}
+
 #[derive(Debug)]
 enum Gate {
     BUFFER(Input),
@@ -20,18 +30,8 @@ enum Input {
     SIGNAL(u16),
 }
 
-pub fn solve() {
-    let mut wires = parse_wires();
-
-    let wire_a_value = wire_signal(&mut HashMap::new(), &wires, &String::from("a"));
-    println!("Part 1: {}", wire_a_value);
-
-    wires.insert(String::from("b"), Gate::BUFFER(Input::SIGNAL(wire_a_value)));
-    println!("Part 2: {}", wire_signal(&mut HashMap::new(), &wires, &String::from("a")));
-}
-
 fn wire_signal(mem: &mut HashMap<String, u16>, wires: &HashMap<String, Gate>, wire: &String) -> u16 {
-    match wires.get(wire.as_str()).unwrap() {
+    match wires.get(wire).unwrap() {
         Gate::BUFFER(input) =>
             eval(input, wires, mem),
         Gate::NOT(input) =>
@@ -64,11 +64,11 @@ fn eval(input: &Input, wires: &HashMap<String, Gate>, mem: &mut HashMap<String, 
 
 fn parse_wires() -> HashMap<String, Gate> {
     utils::read_lines("./src/year2015/resources/day7.txt")
-        .into_iter()
+        .iter()
         .map(|line| {
             let parts = line.split(" -> ").collect_vec();
             (parts[1].to_string(), parse_gate(parts[0].split(' ').collect_vec()))
-        }).collect::<HashMap<String, Gate>>()
+        }).collect()
 }
 
 fn parse_gate(gate_vec: Vec<&str>) -> Gate {

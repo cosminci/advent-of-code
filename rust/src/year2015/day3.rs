@@ -5,7 +5,8 @@ use itertools::Itertools;
 use crate::utils;
 
 pub fn solve() {
-    let commands = utils::read_lines("./src/year2015/resources/day3.txt").first().unwrap().to_string();
+    let commands = utils::read_first_line("./src/year2015/resources/day3.txt");
+
     println!("Part 1: {}", count_visited_houses(&commands));
     println!("Part 2: {}", count_visited_houses_with_aid(&commands));
 }
@@ -22,7 +23,7 @@ fn count_visited_houses_with_aid(commands: &String) -> usize {
 
 fn filter_commands<F: Fn(usize) -> bool>(commands: &String, predicate: F) -> String {
     commands.chars().enumerate()
-        .filter(|(i, _)| predicate(*i))
+        .filter(|&(i, _)| predicate(i))
         .map(|(_, cmd)| cmd)
         .collect::<String>()
 }

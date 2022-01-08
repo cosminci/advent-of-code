@@ -4,6 +4,7 @@ use itertools::Itertools;
 
 pub fn solve() {
     let seed = "1113222113";
+
     println!("Part 1: {}", play(seed, 40));
     println!("Part 2: {}", play(seed, 50));
 }

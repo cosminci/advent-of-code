@@ -3,8 +3,9 @@ use serde_json::{Map, Value};
 use crate::utils;
 
 pub fn solve() {
-    let input = utils::read_lines("./src/year2015/resources/day12.txt");
-    let json = serde_json::from_str(&input.first().unwrap()).unwrap();
+    let input = utils::read_first_line("./src/year2015/resources/day12.txt");
+    let json = serde_json::from_str(&input).unwrap();
+
     println!("Part 1: {}", sum_nums(&json, false));
     println!("Part 2: {}", sum_nums(&json, true));
 }

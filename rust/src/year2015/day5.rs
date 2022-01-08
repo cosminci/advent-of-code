@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use itertools::Itertools;
 
 use substring::Substring;
 
@@ -6,6 +7,7 @@ use crate::utils;
 
 pub fn solve() {
     let strings = utils::read_lines("./src/year2015/resources/day5.txt");
+
     println!("Part 1: {}", count_nice_strings_1(&strings));
     println!("Part 2: {}", count_nice_strings_2(&strings));
 }
@@ -16,7 +18,7 @@ fn count_nice_strings_1(strings: &Vec<String>) -> usize {
     let denied = HashSet::from(["ab", "cd", "pq", "xy"]);
 
     strings.iter().filter(|&s| {
-        let vowel_count = s.chars().filter(|c| vowels.contains(c)).collect::<Vec<char>>().len();
+        let vowel_count = s.chars().filter(|c| vowels.contains(c)).collect_vec().len();
         let double_exists = doubles.iter().any(|d| s.contains(d));
         let no_denied = denied.iter().all(|&d| !s.contains(d));
         vowel_count >= 3 && double_exists && no_denied

@@ -4,6 +4,7 @@ use itertools::Itertools;
 
 pub fn solve() {
     let first_pw = "hxbxwxba";
+
     println!("Part 1: {}", next_password(first_pw.to_string()));
     println!("Part 2: {}", next_password(next_password(first_pw.to_string())));
 }

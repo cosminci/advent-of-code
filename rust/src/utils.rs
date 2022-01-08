@@ -11,3 +11,7 @@ pub fn read_lines(filename: impl AsRef<Path>) -> Vec<String> {
         .map(|l| l.unwrap())
         .collect()
 }
+
+pub fn read_first_line(filename: impl AsRef<Path>) -> String {
+    read_lines(filename).first().unwrap().to_string()
+}

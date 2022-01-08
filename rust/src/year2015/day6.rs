@@ -5,14 +5,8 @@ use itertools::Itertools;
 use crate::utils;
 
 pub fn solve() {
-    let instructions = utils::read_lines("./src/year2015/resources/day6.txt")
-        .into_iter()
-        .map(|line| {
-            let parts = line.split(' ').collect_vec();
-            let from = parts[1].split(',').map(|s| s.parse::<usize>().unwrap()).collect_vec();
-            let to = parts[3].split(',').map(|s| s.parse::<usize>().unwrap()).collect_vec();
-            (parts[0].to_string(), from[0]..to[0] + 1, from[1]..to[1] + 1)
-        }).collect::<Vec<(String, Range<usize>, Range<usize>)>>();
+    let input = utils::read_lines("./src/year2015/resources/day6.txt");
+    let instructions = parse_instructions(input);
 
     println!("Part 1: {}", lights_on(&instructions));
     println!("Part 2: {}", total_brightness(&instructions));
@@ -36,7 +30,7 @@ fn lights_on(instructions: &Vec<(String, Range<usize>, Range<usize>)>) -> usize 
 
 fn total_brightness(instructions: &Vec<(String, Range<usize>, Range<usize>)>) -> usize {
     let mut grid = [[0_usize; 1000]; 1000];
-    instructions.into_iter().for_each(|(cmd, xr, yr)| {
+    instructions.iter().for_each(|(cmd, xr, yr)| {
         xr.clone().for_each(|x| {
             yr.clone().for_each(|y| {
                 grid[x][y] = match cmd.as_str() {
@@ -48,4 +42,15 @@ fn total_brightness(instructions: &Vec<(String, Range<usize>, Range<usize>)>) ->
         })
     });
     grid.iter().map(|row| row.iter().sum::<usize>()).sum()
+}
+
+fn parse_instructions(input: Vec<String>) -> Vec<(String, Range<usize>, Range<usize>)> {
+    input
+        .iter()
+        .map(|line| {
+            let parts = line.split(' ').collect_vec();
+            let from = parts[1].split(',').map(|s| s.parse::<usize>().unwrap()).collect_vec();
+            let to = parts[3].split(',').map(|s| s.parse::<usize>().unwrap()).collect_vec();
+            (parts[0].to_string(), from[0]..to[0] + 1, from[1]..to[1] + 1)
+        }).collect_vec()
 }

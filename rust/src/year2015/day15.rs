@@ -16,9 +16,9 @@ fn highest_score(ingredients: &Vec<Ingredient>, teaspoons: u8) -> isize {
 
 fn highest_score_500_calories(ingredients: &Vec<Ingredient>, teaspoons: u8) -> isize {
     scores(&ingredients, teaspoons).into_iter()
-        .map(|(score, calories)|
-            if calories == 500 { score } else { 0 }
-        ).max().unwrap()
+        .filter(|&(_, calories)| calories == 500)
+        .map(|(score, _)| score)
+        .max().unwrap()
 }
 
 fn scores(ingredients: &Vec<Ingredient>, teaspoons: u8) -> Vec<(isize, u16)> {

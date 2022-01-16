@@ -27,9 +27,9 @@ fn most_expensive_loadout_that_loses(loadouts: &mut Vec<Gear>, player_hp: i8, bo
 }
 
 fn will_win(stats1: &Gear, hp1: i8, stats2: &Gear, hp2: i8) -> bool {
-    if hp1 < 0 {
+    if hp1 <= 0 {
         false
-    } else if hp2 < 0 {
+    } else if hp2 <= 0 {
         true
     } else {
         let new_hp2 = hp2 - (stats1.damage - stats2.armor).max(1);

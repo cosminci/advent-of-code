@@ -1,5 +1,5 @@
 use boolinator::Boolinator;
-use memoize::memoize;
+use cached::proc_macro::cached;
 
 pub fn solve() {
     let (player_hp, mana_left) = (50, 500);
@@ -11,7 +11,7 @@ pub fn solve() {
                                                [0; 3], true, true));
 }
 
-#[memoize]
+#[cached]
 fn minimum_mana_to_win(player_hp: i8, boss_hp: i8, boss_damage: i8, mana_left: i16, mana_used: u64,
                        effect_ttls: [u8; 3], player_turn: bool, hard: bool) -> u64 {
     let boss_hp = if effect_ttls[1] > 0 { boss_hp - 3 } else { boss_hp };

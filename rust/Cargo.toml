@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+boolinator = "2"
 itertools = "0.10"
 md5 = "0.7"
+memoize = "0.2"
 regex = "1"
 serde_json = "1"
 substring = "1"

@@ -55,13 +55,13 @@ fn parse_input(input: Vec<String>) -> HashMap<u16, HashMap<String, u8>> {
 
     input.into_iter().map(|line| {
         let caps = aunt_prefix.captures(line.as_str()).unwrap();
-        let aunt = caps.get(1).unwrap().as_str().parse::<u16>().unwrap();
+        let aunt = caps.get(1).unwrap().as_str().parse().unwrap();
         let belongings_str = aunt_prefix.replace(line.as_str(), "");
         let belongings = belongings_str.split(", ").collect_vec();
 
         let counts = belongings.into_iter().map(|belonging| {
             let parts = belonging.split(": ").collect_vec();
-            (parts[0].to_string(), parts[1].parse::<u8>().unwrap())
+            (parts[0].to_string(), parts[1].parse().unwrap())
         }).collect();
 
         (aunt, counts)

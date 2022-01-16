@@ -49,6 +49,6 @@ fn parse_input(input: Vec<String>) -> Vec<(String, String, usize)> {
         .map(|line| {
             let parts = line.split(" = ").collect_vec();
             let locations = parts[0].split(" to ").collect_vec();
-            (locations[0].to_string(), locations[1].to_string(), parts[1].parse::<usize>().unwrap())
+            (locations[0].to_string(), locations[1].to_string(), parts[1].parse().unwrap())
         }).collect_vec()
 }

@@ -80,12 +80,12 @@ fn parse_gate(gate_vec: Vec<&str>) -> Gate {
         match gate_vec[1] {
             "AND" => Gate::AND(parse_input(gate_vec[0]), parse_input(gate_vec[2])),
             "OR" => Gate::OR(parse_input(gate_vec[0]), parse_input(gate_vec[2])),
-            "LSHIFT" => Gate::LSHIFT(parse_input(gate_vec[0]), gate_vec[2].parse::<u16>().unwrap()),
-            _ => Gate::RSHIFT(parse_input(gate_vec[0]), gate_vec[2].parse::<u16>().unwrap())
+            "LSHIFT" => Gate::LSHIFT(parse_input(gate_vec[0]), gate_vec[2].parse().unwrap()),
+            _ => Gate::RSHIFT(parse_input(gate_vec[0]), gate_vec[2].parse().unwrap())
         }
     }
 }
 
 fn parse_input(s: &str) -> Input {
-    s.parse::<u16>().map_or(Input::WIRE(s.to_string()), |v| Input::SIGNAL(v))
+    s.parse().map_or(Input::WIRE(s.to_string()), |v| Input::SIGNAL(v))
 }

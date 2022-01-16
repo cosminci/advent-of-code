@@ -53,7 +53,7 @@ fn parse_line(line: String) -> (String, String, i8) {
     let p1 = parts[0].to_string();
     let p2 = parts[10].to_string();
     let sign = parts[2];
-    let val = parts[3].parse::<i8>().unwrap();
+    let val = parts[3].parse().unwrap();
     (p1, p2, if sign == "gain" { val } else { -val })
 }
 

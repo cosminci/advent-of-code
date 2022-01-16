@@ -49,7 +49,7 @@ fn parse_instructions(input: Vec<String>) -> Vec<(String, Range<usize>, Range<us
         .iter()
         .map(|line| {
             let parts = line.split(' ').collect_vec();
-            let from = parts[1].split(',').map(|s| s.parse::<usize>().unwrap()).collect_vec();
+            let from = parts[1].split(',').map(|s| s.parse().unwrap()).collect_vec();
             let to = parts[3].split(',').map(|s| s.parse::<usize>().unwrap()).collect_vec();
             (parts[0].to_string(), from[0]..to[0] + 1, from[1]..to[1] + 1)
         }).collect_vec()

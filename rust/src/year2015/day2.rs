@@ -29,7 +29,7 @@ fn ribbon_needed(box_sizes: &Vec<(usize, usize, usize)>) -> usize {
 
 fn parse_input(input: Vec<String>) -> Vec<(usize, usize, usize)> {
     input.iter()
-        .map(|line| line.split('x').map(|size| size.parse::<usize>().unwrap()).collect_vec())
+        .map(|line| line.split('x').map(|size| size.parse().unwrap()).collect_vec())
         .map(|sizes| (sizes[0], sizes[1], sizes[2]))
         .collect_vec()
 }

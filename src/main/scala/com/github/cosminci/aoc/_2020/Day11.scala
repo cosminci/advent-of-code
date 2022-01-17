@@ -35,7 +35,7 @@ object Day11 {
   }
 
   private val countNeighbours: CountFn = (grid, m, n, row, col) =>
-    utils.neighbours(n, m, row, col, includeDiagonals = true).count { case (r, c) => grid(r)(c) == '#' }
+    utils.neighbours(m, n, row, col, includeDiagonals = true).count { case (r, c) => grid(r)(c) == '#' }
 
   private val directions = Seq((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
   private val countOccupiedDirections: CountFn = (grid, _, _, row, col) => {

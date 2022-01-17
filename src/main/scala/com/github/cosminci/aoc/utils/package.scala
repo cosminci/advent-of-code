@@ -15,9 +15,9 @@ package object utils {
   def loadInputAsStrings(path: String): Seq[String] =
     Using.resource(Source.fromResource(path))(_.getLines().toSeq)
 
-  def neighbours(n: Int, m: Int, r: Int, c: Int, includeDiagonals: Boolean = false): Seq[(Int, Int)] = {
+  def neighbours(m: Int, n: Int, r: Int, c: Int, includeDiagonals: Boolean = false): Seq[(Int, Int)] = {
     def collectWithinBounds(deltas: Seq[(Int, Int)]): Seq[(Int, Int)] =
-      deltas.collect { case (dr, dc) if r + dr >= 0 && r + dr <= n && c + dc >= 0 && c + dc <= m => (r + dr, c + dc) }
+      deltas.collect { case (dr, dc) if r + dr >= 0 && r + dr <= m && c + dc >= 0 && c + dc <= n => (r + dr, c + dc) }
 
     collectWithinBounds(Seq((-1, 0), (0, -1), (0, 1), (1, 0))) ++
       Option.when(includeDiagonals)(collectWithinBounds(Seq((-1, -1), (-1, 1), (1, -1), (1, 1)))).sequence.flatten

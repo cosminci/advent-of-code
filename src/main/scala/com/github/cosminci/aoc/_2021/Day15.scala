@@ -17,14 +17,14 @@ object Day15 {
   }
 
   def lowestTotalRisk(grid: Seq[Seq[Int]]): Int = {
-    val (n, m) = (grid.length - 1, grid.head.length - 1)
+    val (m, n) = (grid.length - 1, grid.head.length - 1)
 
     @tailrec
     def dfs(toVisit: TreeSet[(Int, Int, Int)], visited: Set[(Int, Int)]): Int = {
       val curr @ (risk, x, y) = toVisit.last
-      if (x == n && y == m) return -risk
+      if (x == m && y == n) return -risk
 
-      val (newToVisit, newVisited) = utils.neighbours(n, m, x, y).foldLeft(toVisit, visited) {
+      val (newToVisit, newVisited) = utils.neighbours(m, n, x, y).foldLeft(toVisit, visited) {
         case ((toVisit, visited), (x, y)) =>
           if (visited.contains((x, y))) (toVisit, visited)
           else (toVisit + ((risk - grid(x)(y), x, y)), visited + ((x, y)))
@@ -36,10 +36,10 @@ object Day15 {
   }
 
   def generateCompleteMap(grid: Seq[Seq[Int]]): Seq[Seq[Int]] = {
-    val (n, m) = (grid.length, grid.head.length)
-    Seq.tabulate(5 * n, 5 * m) { case (i, j) =>
-      val (xTile, xOffset) = i /% n
-      val (yTile, yOffset) = j /% m
+    val (m, n) = (grid.length, grid.head.length)
+    Seq.tabulate(5 * m, 5 * n) { case (i, j) =>
+      val (xTile, xOffset) = i /% m
+      val (yTile, yOffset) = j /% n
       val value            = grid(xOffset)(yOffset) + xTile + yTile
       Option.when(value < 10)(value).getOrElse(value % 10 + 1)
     }

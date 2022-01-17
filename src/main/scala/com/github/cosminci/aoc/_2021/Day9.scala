@@ -11,21 +11,21 @@ object Day9 {
   }
 
   def riskLevel(grid: Seq[Seq[Int]]): Int = {
-    val (n, m) = (grid.length - 1, grid.head.length - 1)
+    val (m, n) = (grid.length - 1, grid.head.length - 1)
     val lowPoints = for {
       r <- grid.indices
       c <- grid(r).indices
-      if utils.neighbours(n, m, r, c).forall { case (r1, c1) => grid(r)(c) < grid(r1)(c1) }
+      if utils.neighbours(m, n, r, c).forall { case (r1, c1) => grid(r)(c) < grid(r1)(c1) }
     } yield grid(r)(c) + 1
 
     lowPoints.sum
   }
 
   def largestBasinsProduct(grid: Seq[Seq[Int]]): Int = {
-    val (n, m) = (grid.length - 1, grid.head.length - 1)
+    val (m, n) = (grid.length - 1, grid.head.length - 1)
 
     def dfs(r: Int, c: Int, visited: Set[(Int, Int)]): (Set[(Int, Int)], Int) =
-      utils.neighbours(n, m, r, c).foldLeft(visited, 1) { case ((visited, size), (r, c)) =>
+      utils.neighbours(m, n, r, c).foldLeft(visited, 1) { case ((visited, size), (r, c)) =>
         if (grid(r)(c) == 9 || visited.contains((r, c))) (visited, size)
         else {
           val (newVisited, count) = dfs(r, c, visited + ((r, c)))
@@ -33,7 +33,7 @@ object Day9 {
         }
       }
 
-    (0 until m).flatMap(r => (0 until n).map(c => (r, c)))
+    (0 until n).flatMap(r => (0 until m).map(c => (r, c)))
       .foldLeft(Set.empty[(Int, Int)], Seq.empty[Int]) { case ((visited, sizes), (r, c)) =>
         if (grid(r)(c) == 9 || visited.contains((r, c))) (visited, sizes)
         else {

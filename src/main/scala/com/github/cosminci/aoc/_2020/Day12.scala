@@ -8,6 +8,7 @@ object Day12 {
 
   def main(args: Array[String]): Unit = {
     val commands = utils.loadInputAsStrings("2020/day12.txt").map(str => (str.head, str.tail.toInt))
+
     println(s"Part 1: ${distanceToOrigin(commands)}")
     println(s"Part 2: ${distanceToOrigin2(commands)}")
   }

@@ -27,5 +27,4 @@ object Day10 {
         val nCount = counts.getOrElse(n - 1, 0L) + counts.getOrElse(n - 2, 0L) + counts.getOrElse(n - 3, 0L)
         counts + (n -> nCount)
       }(adapters.max)
-
 }

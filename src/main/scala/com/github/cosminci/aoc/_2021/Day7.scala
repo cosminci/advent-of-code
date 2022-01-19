@@ -4,7 +4,7 @@ import com.github.cosminci.aoc.utils
 
 object Day7 {
   def main(args: Array[String]): Unit = {
-    val input = utils.loadInputAsStrings("2021/day7.txt").head.split(',').map(_.toInt)
+    val input = utils.loadInputAsStrings("2021/day7.txt").head.split(',').map(_.toInt).toSeq
 
     println(s"Part I: ${costToAlignToMedian(input)}")
     println(s"Part II: ${costToAlignToMean(input)}")

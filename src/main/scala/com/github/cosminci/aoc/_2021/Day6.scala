@@ -6,7 +6,7 @@ import scala.collection.mutable
 
 object Day6 {
   def main(args: Array[String]): Unit = {
-    val fish = utils.loadInputAsStrings("2021/day6.txt").head.split(',').map(_.toInt)
+    val fish = utils.loadInputAsStrings("2021/day6.txt").head.split(',').map(_.toInt).toSeq
     println(s"Part I: ${simulateTopDownDP(fish, 80)}")
     println(s"Part II: ${simulateTopDownDP(fish, 256)}")
 

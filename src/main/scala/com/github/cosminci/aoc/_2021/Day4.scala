@@ -7,7 +7,7 @@ import scala.util.Try
 object Day4 {
   def main(args: Array[String]): Unit = {
     val input = utils.loadInputAsStrings("2021/day4.txt")
-    val nums  = input.head.split(',').map(_.toInt)
+    val nums  = input.head.split(',').map(_.toInt).toSeq
     val boards = input.tail
       .filter(_.nonEmpty)
       .map(_.split(' ').flatMap(s => Try(s.toInt).toOption).toSeq)

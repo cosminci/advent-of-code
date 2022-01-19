@@ -65,5 +65,5 @@ object Day19 {
     (rules, messages)
   }
 
-  private def parseSeq(s: String): Sequence = Sequence(s.trim.split(" ").map(_.toInt))
+  private def parseSeq(s: String): Sequence = Sequence(s.trim.split(" ").toSeq.map(_.toInt))
 }

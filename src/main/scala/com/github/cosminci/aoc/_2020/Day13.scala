@@ -8,7 +8,7 @@ object Day13 {
 
   def main(args: Array[String]): Unit = {
     val input          = utils.loadInputAsStrings("2020/day13.txt")
-    val (minTs, buses) = (input.head.toInt, input.last.split(','))
+    val (minTs, buses) = (input.head.toInt, input.last.split(',').toSeq)
 
     println(s"Part 1: ${earliestBusIdTimesWaitTime(minTs, buses)}")
     println(s"Part 2: ${earliestTsBusesDepartSubsequently(buses)}")

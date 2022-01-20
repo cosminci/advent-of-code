@@ -5,65 +5,53 @@ import com.github.cosminci.aoc.utils
 object Day19 {
 
   def main(args: Array[String]): Unit = {
-    val input             = utils.loadInputAsStrings("2020/day19.txt")
-    val (rules, messages) = parseInput(input)
+    val input                    = utils.loadInputAsStrings("2020/day19.txt")
+    val (rules, chars, messages) = parseInput(input)
 
-    println(s"Part 1: ${countValidMessages(rules, messages)}")
-    println(s"Part 1: ${countValidMessagesWithRouteCycles(rules, messages)}")
+    println(s"Part 1: ${countValidMessages(rules, chars, messages)}")
+    println(s"Part 2: ${countValidMessagesWithRuleCycles(rules, chars, messages)}")
   }
 
-  def countValidMessages(rules: Map[Int, Rule], messages: Seq[String]): Int =
-    messages.count(s => validMatches(rules, rules(0), s).exists(_.remainingStr == ""))
+  type Rule = Seq[Seq[Int]]
 
-  def countValidMessagesWithRouteCycles(rules: Map[Int, Rule], messages: Seq[String]): Int =
-    countValidMessages(
-      rules ++ Map(
-        8  -> Or(Sequence(Seq(42, 8)), Sequence(Seq(42))),
-        11 -> Or(Sequence(Seq(42, 11, 31)), Sequence(Seq(42, 31)))
-      ),
-      messages
+  def countValidMessages(rules: Map[Int, Rule], chars: Seq[Int], messages: Seq[String]): Int =
+    messages.count(stripRule(rules, chars, id = 0, _).contains(""))
+
+  def countValidMessagesWithRuleCycles(rules: Map[Int, Rule], chars: Seq[Int], messages: Seq[String]): Int = {
+    val ruleOverrides = Map(
+      8  -> Seq(Seq(42, 8), Seq(42)),
+      11 -> Seq(Seq(42, 11, 31), Seq(42, 31))
     )
+    countValidMessages(rules ++ ruleOverrides, chars, messages)
+  }
 
-  private def validMatches(rules: Map[Int, Rule], rule: Rule, s: String): Seq[Matched] =
+  private def stripRule(rules: Map[Int, Rule], chars: Seq[Int], id: Int, s: String): Seq[String] =
     if (s.isEmpty) Seq.empty
-    else
-      rule match {
-        case LetterRule(letter) => Seq.empty ++ Option.when(s.head == letter)(Matched(s.tail))
-        case seq: Sequence      => matchesSequence(rules, seq, s)
-        case Or(rules1, rules2) => matchesSequence(rules, rules1, s) ++ matchesSequence(rules, rules2, s)
-      }
+    else if (chars.contains(id)) Option.when(s.head == chars.indexOf(id) + 'a')(Seq(s.tail)).getOrElse(Seq.empty)
+    else rules(id).flatMap(stripRuleSeq(rules, chars, _, s))
 
-  private def matchesSequence(rules: Map[Int, Rule], seq: Sequence, s: String): Seq[Matched] =
-    seq.rules.tail.foldLeft(validMatches(rules, rules(seq.rules.head), s)) { (acc, ruleId) =>
-      acc.flatMap { prevMatch =>
-        validMatches(rules, rules(ruleId), prevMatch.remainingStr)
-      }
-    }
+  private def stripRuleSeq(rules: Map[Int, Rule], chars: Seq[Int], seq: Seq[Int], s: String): Seq[String] =
+    if (seq.isEmpty) Seq(s)
+    else stripRule(rules, chars, seq.head, s).flatMap(stripRuleSeq(rules, chars, seq.tail, _))
 
-  sealed trait Rule
-  case class LetterRule(letter: Char)       extends Rule
-  case class Or(s1: Sequence, s2: Sequence) extends Rule
-  case class Sequence(rules: Seq[Int])      extends Rule
-
-  case class Matched(remainingStr: String)
-
-  private val ruleIdPattern = "([0-9]+): (.*)$".r
-  private val charPattern   = "\"([a-z])\"".r
-  private val orPattern     = "(.*) \\| (.*)".r
+  private val rulePattern = "([0-9]+): (.*)$".r
+  private val orPattern   = "(.*) \\| (.*)".r
 
   private def parseInput(input: Seq[String]) = {
-    val rules = input
+    val (rules, chars) = input
       .takeWhile(_.nonEmpty)
-      .map {
-        case ruleIdPattern(id, charPattern(letter))       => id.toInt -> LetterRule(letter.charAt(0))
-        case ruleIdPattern(id, orPattern(rules1, rules2)) => id.toInt -> Or(parseSeq(rules1), parseSeq(rules2))
-        case ruleIdPattern(id, ruleSequence)              => id.toInt -> parseSeq(ruleSequence)
+      .foldLeft(Map.empty[Int, Rule], Seq.fill(2)(0)) { case ((rules, chars), line) =>
+        line match {
+          case rulePattern(id, "\"a\"")           => (rules, chars.updated(0, id.toInt))
+          case rulePattern(id, "\"b\"")           => (rules, chars.updated(1, id.toInt))
+          case rulePattern(id, orPattern(s1, s2)) => (rules.updated(id.toInt, Seq(s1, s2).map(parseSeq)), chars)
+          case rulePattern(id, s)                 => (rules.updated(id.toInt, Seq(parseSeq(s))), chars)
+        }
       }
-      .toMap
 
-    val messages = input.slice(rules.size + 1, input.length)
-    (rules, messages)
+    val messages = input.slice(rules.size + chars.length + 1, input.length)
+    (rules, chars, messages)
   }
 
-  private def parseSeq(s: String): Sequence = Sequence(s.trim.split(" ").toSeq.map(_.toInt))
+  private def parseSeq(s: String) = s.trim.split(" ").toSeq.map(_.toInt)
 }

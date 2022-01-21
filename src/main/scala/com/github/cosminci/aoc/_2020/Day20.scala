@@ -26,13 +26,13 @@ object Day20 {
   type Arrangements = Seq[Seq[Placement]]
   case class Placement(id: Int, isMirror: Boolean, rotation: Int, edges: Edges)
 
-  def cornerTileIdProduct(gridSize: Int, arrangement: Seq[Int]): Long =
+  def cornerTileIdProduct(gridSize: Int, tileIds: Seq[Int]): Long =
     Seq((0, 0), (0, gridSize - 1), (gridSize - 1, 0), (gridSize - 1, gridSize - 1)).map { case (r, c) =>
-      arrangement(r * gridSize + c).toLong
+      tileIds(r * gridSize + c).toLong
     }.product
 
-  private def waterRoughness(gridSize: Int, tiles: Tiles, arrangement: Arrangements, monster: Monster): Int =
-    arrangement.map { arrangement =>
+  private def waterRoughness(gridSize: Int, tiles: Tiles, arrangements: Arrangements, monster: Monster): Int =
+    arrangements.map { arrangement =>
       val grid = reconstructGrid(gridSize, tiles, arrangement)
       grid.map(_.count(_ == '#')).sum - countMonsters(monster, grid) * monster.length
     }.min
@@ -49,7 +49,7 @@ object Day20 {
           }
         }.toSeq
 
-    dfs(tiles, placed = Seq.empty)
+    dfs(available = tiles, placed = Seq.empty)
   }
 
   private val tileChoices = for {
@@ -58,23 +58,31 @@ object Day20 {
   } yield (isMirror, rotation)
 
   private def countMonsters(monster: Monster, grid: Seq[String]) = {
-    val (m, n) = (monster.map(_._1).max, monster.map(_._2).max)
-    val occurrences = for {
+    val (m, n) = monster.foldLeft(0, 0) { case ((mx, my), (x, y)) =>
+      (mx.max(x), my.max(y))
+    }
+
+    val indices = for {
       x <- 0 until grid.length - m
       y <- 0 until grid.head.length - n
-      if monster.forall { case (mx, my) => grid(x + mx)(y + my) == '#' }
-    } yield 1
-    occurrences.sum
+    } yield (x, y)
+
+    indices.count { case (x, y) =>
+      monster.forall { case (mx, my) =>
+        grid(x + mx)(y + my) == '#'
+      }
+    }
   }
 
-  private def reconstructGrid(gridSize: Int, tiles: Tiles, arrangement: Seq[Placement]) = {
+  private def reconstructGrid(gridSize: Int, tiles: Tiles, arrangement: Seq[Placement]) =
     alignTiles(tiles, arrangement)
       .grouped(gridSize)
       .flatMap { group =>
-        group.head.indices.map(row => group.map(_(row)).mkString)
+        group.head.indices.map { row =>
+          group.map(_(row)).mkString
+        }
       }
       .toSeq
-  }
 
   private def alignTiles(tiles: Tiles, arrangement: Seq[Placement]) =
     arrangement.map { case Placement(id, isMirror, rotation, _) =>
@@ -96,9 +104,11 @@ object Day20 {
     val fitsUp =
       if (placed.length < gridSize) true
       else isVerticalMatch(placed(placed.length - gridSize).edges, orientation)
+
     val fitsLeft =
       if (placed.length % gridSize == 0) true
       else isHorizontalMatch(placed.last.edges, orientation)
+
     fitsUp && fitsLeft
   }
 
@@ -145,7 +155,10 @@ object Day20 {
   }
 
   private def bitSet(s: String) =
-    s.indices.foldLeft(0)((bitset, i) => Option.when(s(i) == '#')(bitset | (1 << i)).getOrElse(bitset))
+    s.indices.foldLeft(0) { (bitset, i) =>
+      if (s(i) == '#') bitset | (1 << i)
+      else bitset
+    }
 
   private def parseMonster(input: Seq[String]) =
     input.zipWithIndex.flatMap { case (s, x) =>

@@ -7,8 +7,8 @@ pub fn solve() {
     let input = utils::read_lines("./src/year2016/resources/day4.txt");
     let rooms = valid_rooms(parse_input(input));
 
-    println!("Part 1: {:?}", count_valid_rooms(&rooms));
-    println!("Part 2: {:?}", north_pole_room(&rooms));
+    println!("Part 1: {}", count_valid_rooms(&rooms));
+    println!("Part 2: {}", north_pole_room(&rooms));
 }
 
 fn count_valid_rooms(rooms: &Vec<(String, u32, String)>) -> u32 {
@@ -18,7 +18,7 @@ fn count_valid_rooms(rooms: &Vec<(String, u32, String)>) -> u32 {
 fn north_pole_room(rooms: &Vec<(String, u32, String)>) -> u32 {
     *rooms.iter()
         .map(|(name, sector_id, _)| (shift(name, *sector_id), sector_id))
-        .find(|(decrypted_name, sector_id)| decrypted_name.starts_with("northpole"))
+        .find(|(decrypted_name, _)| decrypted_name.starts_with("northpole"))
         .unwrap().1
 }
 

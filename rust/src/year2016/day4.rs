@@ -35,16 +35,15 @@ fn shift(data: &String, shift: u32) -> String {
 
 fn valid_rooms(rooms: Vec<(String, u32, String)>) -> Vec<(String, u32, String)> {
     rooms.into_iter().filter(|(name, _, checksum)| {
-        let mut counter = name.replace("-", "")
+        name.replace("-", "")
             .chars()
             .into_group_map_by(|&c| c)
             .into_iter()
             .map(|(c, v)| (c, v.len() as isize))
-            .collect::<Vec<(char, isize)>>();
-        counter.sort_by_key(|&(c, count)| (-count, c));
-
-        let room_id = counter.iter().map(|(c, _)| c).collect::<String>();
-        room_id.starts_with(checksum)
+            .sorted_by_key(|&(c, count)| (-count, c))
+            .map(|(c, _)| c)
+            .collect::<String>()
+            .starts_with(checksum)
     }).collect_vec()
 }
 

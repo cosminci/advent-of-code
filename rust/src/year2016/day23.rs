@@ -35,31 +35,30 @@ enum Source {
 
 #[tailcall]
 fn execute(instr: &mut Vec<Instruction>, registers: HashMap<char, i32>, curr_idx: i32) -> HashMap<char, i32> {
-    if curr_idx < 0 || curr_idx as usize >= instr.len() {
-        registers
-    } else {
-        let (updated_registers, next_idx) = match instr[curr_idx as usize].clone() {
-            Invalid => (registers, curr_idx + 1),
-            Inc(r) => (registers.update(r, registers[&r] + 1), curr_idx + 1),
-            Dec(r) => (registers.update(r, registers[&r] - 1), curr_idx + 1),
-            Add(src, dest) =>
-                (registers.update(dest, registers[&dest] + registers[&src]), curr_idx + 1),
-            Mul(src, dest) =>
-                (registers.update(dest, registers[&dest] * registers[&src]), curr_idx + 1),
-            Copy(src, dest) =>
-                (registers.update(dest, src_value(&registers, &src)), curr_idx + 1),
-            Jnz(src, jump) =>
-                if src_value(&registers, &src) != 0 {
-                    let next_idx = curr_idx + src_value(&registers, &jump);
-                    (registers, next_idx)
-                } else { (registers, curr_idx + 1) }
-            Tgl(r) => {
-                toggle(instr, curr_idx + registers[&r]);
-                (registers, curr_idx + 1)
-            }
-        };
-        execute(instr, updated_registers, next_idx)
-    }
+    if curr_idx < 0 || curr_idx as usize >= instr.len() { return registers }
+
+    let (updated_registers, next_idx) = match instr[curr_idx as usize].clone() {
+        Invalid => (registers, curr_idx + 1),
+        Inc(r) => (registers.update(r, registers[&r] + 1), curr_idx + 1),
+        Dec(r) => (registers.update(r, registers[&r] - 1), curr_idx + 1),
+        Add(src, dest) =>
+            (registers.update(dest, registers[&dest] + registers[&src]), curr_idx + 1),
+        Mul(src, dest) =>
+            (registers.update(dest, registers[&dest] * registers[&src]), curr_idx + 1),
+        Copy(src, dest) =>
+            (registers.update(dest, src_value(&registers, &src)), curr_idx + 1),
+        Jnz(src, jump) =>
+            if src_value(&registers, &src) != 0 {
+                let next_idx = curr_idx + src_value(&registers, &jump);
+                (registers, next_idx)
+            } else { (registers, curr_idx + 1) }
+        Tgl(r) => {
+            toggle(instr, curr_idx + registers[&r]);
+            (registers, curr_idx + 1)
+        }
+    };
+
+    execute(instr, updated_registers, next_idx)
 }
 
 fn toggle(instr: &mut Vec<Instruction>, idx: i32) {

@@ -26,22 +26,21 @@ enum Source {
 
 #[tailcall]
 fn execute(instr: &Vec<Instruction>, registers: Vector<i32>, curr_idx: i32) -> Vector<i32> {
-    if curr_idx < 0 || curr_idx as usize >= instr.len() {
-        registers
-    } else {
-        let (updated_registers, next_idx) = match &instr[curr_idx as usize] {
-            Instruction::Inc(r) =>
-                (registers.update(*r, registers[*r] + 1), curr_idx + 1),
-            Instruction::Dec(r) =>
-                (registers.update(*r, registers[*r] - 1), curr_idx + 1),
-            Instruction::Copy(src, dest) =>
-                (registers.update(*dest, src_value(&registers, &src)), curr_idx + 1),
-            Instruction::Jnz(source, jump) =>
-                if src_value(&registers, source) != 0 { (registers, curr_idx + jump) }
-                else { (registers, curr_idx + 1) }
-        };
-        execute(instr, updated_registers, next_idx)
-    }
+    if curr_idx < 0 || curr_idx as usize >= instr.len() { return registers }
+
+    let (updated_registers, next_idx) = match &instr[curr_idx as usize] {
+        Instruction::Inc(r) =>
+            (registers.update(*r, registers[*r] + 1), curr_idx + 1),
+        Instruction::Dec(r) =>
+            (registers.update(*r, registers[*r] - 1), curr_idx + 1),
+        Instruction::Copy(src, dest) =>
+            (registers.update(*dest, src_value(&registers, &src)), curr_idx + 1),
+        Instruction::Jnz(source, jump) =>
+            if src_value(&registers, source) != 0 { (registers, curr_idx + jump) }
+            else { (registers, curr_idx + 1) }
+    };
+
+    execute(instr, updated_registers, next_idx)
 }
 
 fn src_value(registers: &Vector<i32>, source: &Source) -> i32 {

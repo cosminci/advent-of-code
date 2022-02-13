@@ -11,8 +11,6 @@ pub fn solve() {
 
     let registers_part_1 = hashmap! { 'a' => 7, 'b' => 0, 'c' => 0, 'd' => 0 };
     println!("Part 1: {}", execute(&mut instructions.clone(), registers_part_1, 0)[&'a']);
-
-    // 10 min w/o optimized multiply loop
     let registers_part_2 = hashmap! { 'a' => 12, 'b' => 0, 'c' => 0, 'd' => 0 };
     println!("Part 2: {}", execute(&mut instructions, registers_part_2, 0)[&'a']);
 }
@@ -22,6 +20,8 @@ enum Instruction {
     Copy(Source, char),
     Inc(char),
     Dec(char),
+    Add(char, char),
+    Mul(char, char),
     Jnz(Source, Source),
     Tgl(char),
     Invalid,
@@ -42,6 +42,10 @@ fn execute(instr: &mut Vec<Instruction>, registers: HashMap<char, i32>, curr_idx
             Invalid => (registers, curr_idx + 1),
             Inc(r) => (registers.update(r, registers[&r] + 1), curr_idx + 1),
             Dec(r) => (registers.update(r, registers[&r] - 1), curr_idx + 1),
+            Add(src, dest) =>
+                (registers.update(dest, registers[&dest] + registers[&src]), curr_idx + 1),
+            Mul(src, dest) =>
+                (registers.update(dest, registers[&dest] * registers[&src]), curr_idx + 1),
             Copy(src, dest) =>
                 (registers.update(dest, src_value(&registers, &src)), curr_idx + 1),
             Jnz(src, jump) =>
@@ -61,7 +65,7 @@ fn execute(instr: &mut Vec<Instruction>, registers: HashMap<char, i32>, curr_idx
 fn toggle(instr: &mut Vec<Instruction>, idx: i32) {
     if idx >= 0 && (idx as usize) < instr.len() {
         instr[idx as usize] = match &instr[idx as usize] {
-            Invalid => Invalid,
+            Invalid | Add(_, _) | Mul(_, _) => Invalid,
             Inc(r) => Dec(*r),
             Dec(r) => Inc(*r),
             Copy(src, dest) => Jnz(src.clone(), Source::Register(*dest)),
@@ -88,6 +92,8 @@ fn parse_input(input: Vec<String>) -> Vec<Instruction> {
             "cpy" => Copy(parse_source(parts[1]), parse_register(parts[2])),
             "inc" => Inc(parse_register(parts[1])),
             "dec" => Dec(parse_register(parts[1])),
+            "add" => Add(parse_register(parts[1]), parse_register(parts[2])),
+            "mul" => Mul(parse_register(parts[1]), parse_register(parts[2])),
             "jnz" => Jnz(parse_source(parts[1]), parse_source(parts[2])),
             _ => Tgl(parse_register(parts[1]))
         }

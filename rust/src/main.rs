@@ -3,5 +3,5 @@ pub mod year2016;
 pub mod utils;
 
 fn main() {
-    year2016::day24::solve()
+    year2016::day25::solve()
 }

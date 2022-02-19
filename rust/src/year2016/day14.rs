@@ -39,7 +39,7 @@ fn lookup_or_generate<'a, F: Fn(&str, usize) -> String>(
         let hash = hash_gen_fn(salt, idx);
         hashes.insert(idx, hash);
     }
-    hashes.get(&idx).unwrap()
+    &hashes[&idx]
 }
 
 fn generate_hash(salt: &str, idx: usize) -> String {

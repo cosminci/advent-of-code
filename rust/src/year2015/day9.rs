@@ -22,8 +22,7 @@ fn dfs(source: &String,
        visited: &mut HashSet<String>,
        min: bool) -> Option<usize> {
     if visited.len() == adj_list.len() { Some(0) } else {
-        let path_costs = adj_list
-            .get(source).unwrap().iter()
+        let path_costs = adj_list[source].iter()
             .flat_map(|(dest, distance)| {
                 if visited.insert(dest.clone()) {
                     let maybe_distance = dfs(&dest, adj_list, visited, min);

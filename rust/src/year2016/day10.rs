@@ -30,11 +30,11 @@ fn simulate<F: Fn(&HashMap<Holder, Vec<u8>>) -> Option<u32>>(
             Some(result) => return result,
             None => {
                 for bot in transferring_bots(state) {
-                    let values = state.get(&bot).unwrap();
+                    let values = &state[&bot];
                     let low_value = values[0].min(values[1]);
                     let high_value = values[0].max(values[1]);
 
-                    let (low_dest, high_dest) = transfer_fns.get(&bot).unwrap();
+                    let (low_dest, high_dest) = &transfer_fns[&bot];
                     transfer(state, low_value, low_dest);
                     transfer(state, high_value, high_dest);
                     state.get_mut(&bot).unwrap().clear();

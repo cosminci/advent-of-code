@@ -24,7 +24,8 @@ enum Source {
     Value(i32),
 }
 
-#[tailcall]
+
+#[allow(unreachable_code)] #[tailcall]
 fn execute(instr: &Vec<Instruction>, registers: Vector<i32>, curr_idx: i32) -> Vector<i32> {
     if curr_idx < 0 || curr_idx as usize >= instr.len() { return registers }
 

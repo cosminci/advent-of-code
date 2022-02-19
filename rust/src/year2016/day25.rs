@@ -36,7 +36,7 @@ fn lowest_a_for_clock_signal(instructions: &Vec<Instruction>) -> usize {
     }).next().unwrap() as usize
 }
 
-#[tailcall]
+#[allow(unreachable_code)] #[tailcall]
 fn execute(
     instr: &Vec<Instruction>,
     registers: HashMap<char, i32>,

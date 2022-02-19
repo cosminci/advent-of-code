@@ -25,9 +25,9 @@ fn animate(
             (0..n).map(|c| {
                 let lit_neighbours = utils::neighbours(r, c, m, n, true).into_iter()
                     .filter(|&(nr, nc)|
-                        grid.get(nr).unwrap().chars().nth(nc).unwrap() == '#'
+                        grid[nr].chars().nth(nc).unwrap() == '#'
                     ).count();
-                let current_state = grid.get(r).unwrap().chars().nth(c).unwrap();
+                let current_state = grid[r].chars().nth(c).unwrap();
 
                 toggle_fn(lit_neighbours, current_state, r, c, m, n)
             }).collect()

@@ -31,7 +31,7 @@ enum Input {
 }
 
 fn wire_signal(mem: &mut HashMap<String, u16>, wires: &HashMap<String, Gate>, wire: &String) -> u16 {
-    match wires.get(wire).unwrap() {
+    match &wires[wire] {
         Gate::BUFFER(input) =>
             eval(input, wires, mem),
         Gate::NOT(input) =>

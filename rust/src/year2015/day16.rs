@@ -23,14 +23,13 @@ fn matching_aunts(
     aunts: &Vec<u16>,
     belongings: &HashMap<u16, HashMap<String, u8>>,
     criteria: &HashMap<&str, u8>,
-    count_predicate: fn(&str, u8, u8) -> bool,
+    predicate: fn(&str, u8, u8) -> bool,
 ) -> Vec<u16> {
     criteria.into_iter().fold(aunts.clone(), |candidates, (&item, &expected)| {
         candidates.into_iter().filter(|a| {
-            let items = belongings.get(a).unwrap();
-            match items.get(item) {
+            match belongings[a].get(item) {
                 None => true,
-                Some(&owned) => count_predicate(item, owned, expected)
+                Some(&owned) => predicate(item, owned, expected)
             }
         }).collect_vec()
     })
@@ -55,7 +54,7 @@ fn parse_input(input: Vec<String>) -> HashMap<u16, HashMap<String, u8>> {
 
     input.into_iter().map(|line| {
         let caps = aunt_prefix.captures(line.as_str()).unwrap();
-        let aunt = caps.get(1).unwrap().as_str().parse().unwrap();
+        let aunt = caps[1].parse().unwrap();
         let belongings_str = aunt_prefix.replace(line.as_str(), "");
         let belongings = belongings_str.split(", ").collect_vec();
 

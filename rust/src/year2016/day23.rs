@@ -33,7 +33,7 @@ enum Source {
     Value(i32),
 }
 
-#[tailcall]
+#[allow(unreachable_code)] #[tailcall]
 fn execute(instr: &mut Vec<Instruction>, registers: HashMap<char, i32>, curr_idx: i32) -> HashMap<char, i32> {
     if curr_idx < 0 || curr_idx as usize >= instr.len() { return registers }
 

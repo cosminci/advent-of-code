@@ -33,7 +33,7 @@ fn access_code_keypad_2(instructions: &Vec<String>) -> String {
             let (nx, ny) = new_position(x, y, char);
             if keypad.contains_key(&(nx, ny)) { (nx, ny) } else { (x, y) }
         });
-        (format!("{}{}", code, keypad.get(&(nx, ny)).unwrap()), nx, ny)
+        (format!("{}{}", code, keypad[&(nx, ny)]), nx, ny)
     }).0
 }
 

@@ -49,9 +49,9 @@ object Day19 {
           dfs(stateAfterBuild(blueprint.geodeRobot, newState))
         else
           Seq(blueprint.oreRobot, blueprint.clayRobot, blueprint.obsidianRobot)
-          .filter(robot => shouldBuild(robot, state))
-          .map(robot => dfs(stateAfterBuild(robot, newState))).maxOption.getOrElse(0)
-          .max(dfs(newState))
+            .filter(robot => shouldBuild(robot, state))
+            .map(robot => dfs(stateAfterBuild(robot, newState))).maxOption.getOrElse(0)
+            .max(dfs(newState))
       })
 
     dfs(State(totalTime, robots = Map("ore" -> 1, "clay" -> 0, "obsidian" -> 0, "geode" -> 0), Resources()))

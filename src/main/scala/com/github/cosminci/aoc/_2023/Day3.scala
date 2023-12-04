@@ -11,7 +11,7 @@ object Day3 {
     println(s"Part 2: ${gearRatioSum(input)}")
   }
 
-  def enginePartSum(input: Seq[String]) =
+  def enginePartSum(input: Seq[String]): Int =
     input.zipWithIndex.flatMap { case (chars, r) =>
       "\\d+".r.findAllMatchIn(chars).flatMap { partMatch =>
         val symbols = neighbours(r, partMatch.start, partMatch.end - 1, input).map { case (r, c) => input(r)(c) }
@@ -19,7 +19,7 @@ object Day3 {
       }
     }.sum
 
-  def gearRatioSum(input: Seq[String]) =
+  def gearRatioSum(input: Seq[String]): Int =
     mapGearsToParts(input)
       .groupMap { case ((r, c), _) => (r, c) } { case (_, part) => part }
       .values

@@ -17,7 +17,7 @@ object Day2 {
 
   private val limits = Map("red" -> 12, "green" -> 13, "blue" -> 14)
 
-  def possibleGameIdSum(gameResults: Map[Int, NonEmptyList[NonEmptyMap[String, Int]]]) =
+  def possibleGameIdSum(gameResults: Map[Int, NonEmptyList[NonEmptyMap[String, Int]]]): Int =
     gameResults.collect { case (id, results) if isGamePossible(results) => id }.sum
 
   private def isGamePossible(rounds: NonEmptyList[NonEmptyMap[String, Int]]) =
@@ -25,7 +25,7 @@ object Day2 {
       round.toSortedMap.forall { case (color, count) => limits(color) >= count }
     }
 
-  def minPossibleCountsPower(gameResults: Map[Int, NonEmptyList[NonEmptyMap[String, Int]]]) = {
+  def minPossibleCountsPower(gameResults: Map[Int, NonEmptyList[NonEmptyMap[String, Int]]]): Int = {
     implicit val minCount: Semigroup[Int] = (x: Int, y: Int) => x max y
     gameResults.values.map(_.reduce.toSortedMap.values.product).sum
   }

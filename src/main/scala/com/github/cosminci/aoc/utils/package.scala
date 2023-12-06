@@ -6,6 +6,7 @@ import scala.io.Source
 import scala.util.Using
 
 package object utils {
+
   def loadInputAsInts(path: String): Seq[Int] =
     loadInputAsStrings(path).map(_.toInt)
 
@@ -24,4 +25,5 @@ package object utils {
   }
 
   def counter[T](s: Iterable[T]): Map[T, Long] = s.groupMapReduce(identity)(_ => 1L)(_ + _)
+
 }

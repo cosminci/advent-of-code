@@ -27,13 +27,8 @@ object Day8 {
       if (curr.last == 'Z') i
       else dfs(i + 1, graph(curr)(pattern(i % pattern.length)))
 
-    graph.keys.filter(_.last == 'A').map(dfs(i = 0, _)).reduce(lcm)
+    graph.keys.filter(_.last == 'A').map(dfs(i = 0, _)).reduce(utils.lcm)
   }
-
-  @annotation.tailrec
-  private def gcd(a: Long, b: Long): Long = if (b == 0) a else gcd(b, a % b)
-
-  private def lcm(a: Long, b: Long): Long = a / gcd(a, b) * b
 
   private def parseInput(input: Seq[String]) = {
     val pattern = input.head.map(ch => if (ch == 'L') 0 else 1)

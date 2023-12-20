@@ -26,4 +26,9 @@ package object utils {
 
   def counter[T](s: Iterable[T]): Map[T, Long] = s.groupMapReduce(identity)(_ => 1L)(_ + _)
 
+  @annotation.tailrec
+  def gcd(a: Long, b: Long): Long = if (b == 0) a else gcd(b, a % b)
+
+  def lcm(a: Long, b: Long): Long = a / gcd(a, b) * b
+
 }

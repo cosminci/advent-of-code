@@ -10,88 +10,103 @@ object Day20 {
     val (modules, circuit) = parseInput(utils.loadInputAsStrings("2023/day20.txt"))
 
     println(s"Part 1: ${pulseCountProduct(modules, circuit)}")
+    println(s"Part 2: ${buttonPressesToStartMachine(modules, circuit)}")
   }
 
   sealed trait Module
-  case class FlipFlop(on: Boolean)                       extends Module
-  case class Conjuction(inputs: Map[String, PulseValue]) extends Module
-  case object Broadcast                                  extends Module
-  case object Output                                     extends Module
+  final case class FlipFlop(on: Boolean)                       extends Module
+  final case class Conjuction(inputs: Map[String, PulseValue]) extends Module
+  final case object Broadcast                                  extends Module
+  final case object Output                                     extends Module
 
-  case class Pulse(src: String, dst: String, value: PulseValue)
   sealed trait PulseValue
-  case object Low  extends PulseValue
-  case object High extends PulseValue
+  final case object Low  extends PulseValue
+  final case object High extends PulseValue
+  final case class Pulse(src: String, dst: String, value: PulseValue)
 
   type ModuleState = Map[String, Module]
   type Circuit     = Map[String, Seq[String]]
-
-  case class PulseCount(low: Int, high: Int) {
-    def combine(other: PulseCount): PulseCount = PulseCount(low = low + other.low, high = high + other.high)
-  }
+  final case class State(modules: ModuleState, pulses: Seq[Pulse])
 
   def pulseCountProduct(modules: ModuleState, circuit: Circuit): Int =
-    (1 to 1000).foldLeft(modules, PulseCount(low = 0, high = 0)) { case ((modules, cnt), _) =>
-      pressButton(modules, circuit).pipe { case (modules, newCnt) => (modules, cnt.combine(newCnt)) }
-    }.pipe { case (_, PulseCount(low, high)) => low * high }
+    (1 to 1000).foldLeft(modules, Seq.empty[Pulse]) { case ((modules, pulses), _) =>
+      val state = pressButton(modules, circuit)
+      (state.modules, pulses ++ state.pulses)
+    }.pipe { case (_, pulses) => calculatePulseProduct(pulses) }
 
-  private def pressButton(modules: ModuleState, circuit: Circuit): (ModuleState, PulseCount) = {
+  def buttonPressesToStartMachine(modules: ModuleState, circuit: Circuit): Long = {
+    val destinationToSources = reverseCircuit(circuit)
+    destinationToSources("rx").flatMap(destinationToSources) // ¯\_(ツ)_/¯
+      .map(buttonPressesUntilHigh(modules, circuit, _))
+      .reduce(utils.lcm)
+  }
+
+  private def buttonPressesUntilHigh(modules: ModuleState, circuit: Circuit, target: String) = {
     @annotation.tailrec
-    def dfs(pulses: Seq[Pulse], modules: ModuleState, cnt: PulseCount): (ModuleState, PulseCount) =
-      if (pulses.isEmpty) (modules, cnt)
+    def dfs(state: State, cnt: Long): Long =
+      if (state.pulses.exists(p => p.src == target && p.value == High)) cnt
+      else dfs(pressButton(state.modules, circuit), cnt + 1)
+
+    dfs(state = State(modules, pulses = Seq.empty), cnt = 0)
+  }
+
+  private def pressButton(modules: ModuleState, circuit: Circuit) = {
+    @annotation.tailrec
+    def dfs(state: State, allPulses: Seq[Pulse]): State =
+      if (state.pulses.isEmpty) State(state.modules, allPulses)
       else {
-        val (newPulses, updatedModules) = pulses.foldLeft(Seq.empty[Pulse], modules) {
-          case ((pulseAcc, modules), pulse) =>
-            val (updatedModule, newPulses) = handlePulse(modules, pulse, circuit)
-            (pulseAcc ++ newPulses, modules.updated(pulse.dst, updatedModule))
-        }
-        dfs(newPulses, updatedModules, updatePulseCount(cnt, newPulses))
+        val updatedState = handlePulses(state, circuit)
+        dfs(updatedState, allPulses ++ updatedState.pulses)
       }
 
-    dfs(pulses = Seq(Pulse("button", "brd", Low)), modules, PulseCount(low = 1, high = 0))
+    val initialState = State(modules, Seq(Pulse(src = "button", dst = "broadcaster", value = Low)))
+    dfs(initialState, allPulses = initialState.pulses)
   }
 
-  private def handlePulse(modules: ModuleState, pulse: Pulse, circuit: Circuit): (Module, Seq[Pulse]) =
-    modules.get(pulse.dst) match {
-      case Some(ff: FlipFlop)     => handleFlipFlopPulse(ff, pulse, circuit(pulse.dst))
-      case Some(conj: Conjuction) => handleConjuctionPulse(conj, pulse, circuit(pulse.dst))
-      case Some(Broadcast)        => (Broadcast, circuit("brd").map(out => Pulse(src = pulse.dst, out, pulse.value)))
-      case None | Some(Output)    => (Output, Seq.empty)
+  private def handlePulses(state: State, circuit: Circuit) =
+    state.pulses.foldLeft(State(state.modules, Seq.empty[Pulse])) { case (State(modules, pulseAcc), pulse) =>
+      val (updatedModule, newPulses) = handlePulse(modules, pulse, circuit)
+      State(modules.updated(pulse.dst, updatedModule), pulseAcc ++ newPulses)
     }
 
-  private def handleFlipFlopPulse(ff: FlipFlop, sentPulse: Pulse, outputs: Seq[String]) =
-    sentPulse.value match {
-      case High => (ff, Seq.empty)
-      case Low =>
-        val outputValue = if (ff.on) Low else High
-        (FlipFlop(on = !ff.on), outputs.map(out => Pulse(src = sentPulse.dst, out, outputValue)))
+  private def handlePulse(modules: ModuleState, pulse: Pulse, circuit: Circuit) =
+    (modules(pulse.dst), pulse.value) match {
+      case (Output, _) => (Output, Seq.empty)
+      case (Broadcast, pulseValue) =>
+        (Broadcast, circuit("broadcaster").map(out => Pulse(src = pulse.dst, out, pulseValue)))
+      case (module: FlipFlop, High) => (module, Seq.empty)
+      case (module: FlipFlop, Low) =>
+        val generatedPulses = circuit(pulse.dst).map(out => Pulse(src = pulse.dst, out, if (module.on) Low else High))
+        (FlipFlop(on = !module.on), generatedPulses)
+      case (module: Conjuction, pulseValue) =>
+        val updatedInputs = module.inputs.updated(pulse.src, pulseValue)
+        val outputValue   = if (updatedInputs.values.forall(_ == High)) Low else High
+        (Conjuction(updatedInputs), circuit(pulse.dst).map(out => Pulse(src = pulse.dst, out, outputValue)))
     }
 
-  private def handleConjuctionPulse(conj: Conjuction, sentPulse: Pulse, outputs: Seq[String]) = {
-    val updatedInputs = conj.inputs.updated(sentPulse.src, sentPulse.value)
-    val outputValue   = if (updatedInputs.values.forall(_ == High)) Low else High
-    (Conjuction(updatedInputs), outputs.map(out => Pulse(src = sentPulse.dst, out, outputValue)))
-  }
+  private def calculatePulseProduct(pulses: Seq[Pulse]) =
+    pulses.foldLeft(0, 0) {
+      case ((low, high), Pulse(_, _, Low))  => (low + 1, high)
+      case ((low, high), Pulse(_, _, High)) => (low, high + 1)
+    }.pipe { case (low, high) => low * high }
 
-  private def updatePulseCount(cnt: PulseCount, pulses: Seq[Pulse]) =
-    pulses.foldLeft(cnt) {
-      case (cnt, Pulse(_, _, Low))  => cnt.copy(low = cnt.low + 1)
-      case (cnt, Pulse(_, _, High)) => cnt.copy(high = cnt.high + 1)
-    }
+  private def reverseCircuit(circuit: Circuit) =
+    circuit.toSeq
+      .flatMap { case (src, dsts) => dsts.map(_ -> src) }
+      .groupMap { case (dst, _) => dst } { case (_, src) => src }
 
   private def parseInput(input: Seq[String]) = {
     val wiring = input.map { case s"$module -> $outputs" => (module, outputs.split(", ")) }.toMap
     wiring.map {
       case (s"%$name", outputs)     => (name -> FlipFlop(on = false), name -> outputs.toSeq)
       case (s"&$name", outputs)     => (name -> Conjuction(conjunctionInputs(name, wiring)), name -> outputs.toSeq)
-      case ("broadcaster", outputs) => ("brd" -> Broadcast, "brd" -> outputs.toSeq)
-    }.unzip.pipe { case (modules, circuit) => (modules.toMap, circuit.toMap) }
+      case ("broadcaster", outputs) => ("broadcaster" -> Broadcast, "broadcaster" -> outputs.toSeq)
+    }.unzip.pipe { case (modules, circuit) => (modules.toMap + ("rx" -> Output), circuit.toMap) }
   }
 
   private def conjunctionInputs(name: String, wiring: Map[String, Array[String]]) =
-    wiring.collect {
-      case (input, outputs) if outputs.contains(name) =>
-        input.replace("%", "").replace("&", "") -> Low
+    wiring.collect { case (input, outputs) if outputs.contains(name) =>
+      input.replace("%", "").replace("&", "") -> Low
     }
 
 }

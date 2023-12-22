@@ -16,13 +16,11 @@ object Day22 {
   final case class Brick(x: Range, y: Range, z: Range)
 
   def countOptionalBricks(bricks: Seq[Brick]): Int = {
-    val bricksByEndZ = bricks.groupBy(_.z.last).view.mapValues(_.toSet).toMap
-    val supporting   = computeSupporting(bricks)
+    val supporting  = computeSupporting(bricks)
+    val supportedBy = reverseSupporting(supporting)
 
     supporting.count { case (brick, supported) =>
-      supported.forall { supportedBrick =>
-        (bricksByEndZ(brick.z.last) - brick).exists(blocks(_, supportedBrick))
-      }
+      supported.map(supportedBy(_) - brick).forall(_.nonEmpty)
     }
   }
 
@@ -44,25 +42,25 @@ object Day22 {
     val bricksByStartZ = bricks.groupBy(_.z.head).view.mapValues(_.toSet).toMap
 
     def bricksSupportedBy(brick: Brick): Set[Brick] =
-      bricksByStartZ.getOrElse(brick.z.last + 1, Set.empty).filter(blocks(brick, _))
+      bricksByStartZ.getOrElse(brick.z.last + 1, Set.empty).filter(isBlocking(brick, _))
 
     bricks.map(b => b -> bricksSupportedBy(b)).toMap
   }
 
   private def layBricks(bricks: Seq[Brick]) =
     bricks.foldLeft(Seq.empty[Brick]) { (settledBricks, brick) =>
-      val candidates = settledBricks.filter(blocks(_, brick))
+      val candidates = settledBricks.filter(isBlocking(_, brick))
       val maxZ       = candidates.map(_.z.max).maxOption.getOrElse(0)
       settledBricks :+ layBrick(brick, maxZ)
     }
 
-  private def layBrick(brick: Brick, baseZ: Int): Brick =
-    brick.focus(_.z).modify(z => baseZ + 1 to (baseZ + z.length))
+  private def layBrick(b: Brick, baseZ: Int) =
+    b.focus(_.z).modify(z => baseZ + 1 to baseZ + z.length)
 
-  private def blocks(settled: Brick, falling: Brick): Boolean =
-    overlap(settled.x, falling.x) && overlap(settled.y, falling.y)
+  private def isBlocking(b1: Brick, b2: Brick) =
+    hasOverlap(b1.x, b2.x) && hasOverlap(b1.y, b2.y)
 
-  private def overlap(r1: Range, r2: Range): Boolean =
+  private def hasOverlap(r1: Range, r2: Range) =
     (r1.head <= r2.last && r1.last >= r2.head) ||
       (r2.head <= r1.last && r2.last >= r1.head)
 

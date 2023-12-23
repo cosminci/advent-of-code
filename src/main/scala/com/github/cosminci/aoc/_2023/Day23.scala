@@ -18,28 +18,19 @@ object Day23 {
   final case class Pos(r: Int, c: Int)
   type Graph = Map[Pos, Seq[(Pos, Int)]]
 
-  def longestHikeWithSlopes(grid: Seq[String]): Int = {
+  def longestHikeWithSlopes(grid: Seq[String]): Int =
+    longestHike(grid, neighboursFn = neighboursGivenSlopes(grid))
+
+  def longestHikeWithoutSlopes(grid: Seq[String]): Int =
+    buildGraph(grid).pipe(graph => longestHike(grid, neighboursFn = graph(_)))
+
+  private def longestHike(grid: Seq[String], neighboursFn: Pos => Seq[(Pos, Int)]) = {
     val start = Pos(0, grid.head.indexOf('.'))
     val end   = Pos(grid.length - 1, grid.last.indexOf('.'))
 
     def dfs(p: Pos, steps: Int, visited: Set[Pos]): Int =
       if (p == end) steps
-      else neighboursGivenSlopes(p, grid)
-        .filterNot(visited.contains)
-        .map(nei => dfs(nei, steps + 1, visited + nei))
-        .maxOption.getOrElse(Int.MinValue)
-
-    dfs(start, steps = 0, visited = Set(start))
-  }
-
-  def longestHikeWithoutSlopes(grid: Seq[String]): Int = {
-    val start = Pos(0, grid.head.indexOf('.'))
-    val end   = Pos(grid.length - 1, grid.last.indexOf('.'))
-    val graph = buildGraph(start, end, grid)
-
-    def dfs(p: Pos, steps: Int, visited: Set[Pos]): Int =
-      if (p == end) steps
-      else graph(p)
+      else neighboursFn(p)
         .filterNot { case (nei, _) => visited.contains(nei) }
         .map { case (nei, dist) => dfs(nei, steps + dist, visited + nei) }
         .maxOption.getOrElse(Int.MinValue)
@@ -47,7 +38,9 @@ object Day23 {
     dfs(start, steps = 0, visited = Set(start))
   }
 
-  private def buildGraph(start: Pos, end: Pos, grid: Seq[String]) = {
+  private def buildGraph(grid: Seq[String]) = {
+    val start      = Pos(0, grid.head.indexOf('.'))
+    val end        = Pos(grid.length - 1, grid.last.indexOf('.'))
     val vertices   = (findJunctions(grid) :+ start :+ end).toSet
     val emptyGraph = Map.empty[Pos, Seq[(Pos, Int)]].withDefaultValue(Seq.empty)
     vertices.foldLeft(emptyGraph)((graph, v) => computeDistToNei(v, graph, vertices, grid))
@@ -63,8 +56,7 @@ object Day23 {
             .foldLeft(tail, visited, graph) { case ((toVisit, visited, graph), nei) =>
               if (vertices.contains(nei)) (toVisit, visited + nei, graph.updated(v, graph(v) :+ (nei, steps + 1)))
               else (toVisit :+ (nei, steps + 1), visited + nei, graph)
-            }
-            .pipe { case (toVisit, visited, graph) => dfs(toVisit, visited, graph) }
+            }.pipe((dfs _).tupled)
       }
     dfs(toVisit = Seq((v, 0)), visited = Set(v), graph)
   }
@@ -74,9 +66,9 @@ object Day23 {
       .flatMap(r => grid(r).indices.map(c => Pos(r, c)))
       .filter(p => grid(p.r)(p.c) != '#' && neighbours(p, grid).length > 2)
 
-  private def neighboursGivenSlopes(p: Pos, grid: Seq[String]) =
-    if (grid(p.r)(p.c) != '.' && grid(p.r)(p.c) != '#') Seq(slopeEnd(p, grid(p.r)(p.c)))
-    else neighbours(p, grid)
+  private def neighboursGivenSlopes(grid: Seq[String])(p: Pos) =
+    if (grid(p.r)(p.c) != '.' && grid(p.r)(p.c) != '#') Seq(slopeEnd(p, grid(p.r)(p.c)) -> 1)
+    else neighbours(p, grid).map(_ -> 1)
 
   private def neighbours(p: Pos, grid: Seq[String]) =
     Seq(Pos(p.r - 1, p.c), Pos(p.r + 1, p.c), Pos(p.r, p.c - 1), Pos(p.r, p.c + 1))

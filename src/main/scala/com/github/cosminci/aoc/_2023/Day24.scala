@@ -3,7 +3,7 @@ package com.github.cosminci.aoc._2023
 import com.github.cosminci.aoc.utils
 import com.microsoft.z3._
 
-import scala.util.chaining._
+import scala.util.Using
 
 object Day24 {
 
@@ -24,8 +24,8 @@ object Day24 {
     }
   }
 
-  def initialPositionOfAnnihilatorRock(stones: Seq[Stone]): Long = {
-    val (c, solver)     = new Context().pipe(ctx => (ctx, ctx.mkSolver()))
+  def initialPositionOfAnnihilatorRock(stones: Seq[Stone]): Long = Using.resource(new Context()) { c =>
+    val solver          = c.mkSolver()
     val Seq(x, y, z)    = Seq("x", "y", "z").map(c.mkRealConst)
     val Seq(dx, dy, dz) = Seq("dx", "dy", "dz").map(c.mkRealConst)
 
@@ -38,7 +38,7 @@ object Day24 {
 
     solver.check() match {
       case Status.SATISFIABLE => Seq(x, y, z).map(v => solver.getModel.eval(v, true).toString.toLong).sum
-      case _                  => -1
+      case _                  => -1L
     }
   }
 

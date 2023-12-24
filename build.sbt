@@ -9,6 +9,7 @@ libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.2"
 libraryDependencies += "org.typelevel" %% "cats-parse" % "1.0.0"
 libraryDependencies += "dev.optics" %% "monocle-core" % "3.2.0"
 libraryDependencies += "dev.optics" %% "monocle-macro" % "3.2.0"
+libraryDependencies += "tools.aqua" % "z3-turnkey" % "4.12.2.1"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 

@@ -8,7 +8,7 @@ object Day4 {
     val passphrases = utils.loadInputAsStrings("2017/day4.txt").map(_.split(' ').toSeq)
 
     println(s"Part 1: ${countValidPassphrases(passphrases, groupFn = identity)}")
-    println(s"Part 2: ${countValidPassphrases(passphrases, groupFn = _.toSet)}")
+    println(s"Part 2: ${countValidPassphrases(passphrases, groupFn = _.sorted)}")
   }
 
   private def countValidPassphrases[A](passphrases: Seq[Seq[String]], groupFn: String => A): Int =

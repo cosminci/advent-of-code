@@ -3,7 +3,6 @@ package com.github.cosminci.aoc._2017
 import com.github.cosminci.aoc.utils
 
 import scala.collection.mutable
-import scala.util.chaining._
 
 object Day7 {
 

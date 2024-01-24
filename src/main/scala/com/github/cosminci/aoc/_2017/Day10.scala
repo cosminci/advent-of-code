@@ -5,10 +5,10 @@ import com.github.cosminci.aoc.utils
 object Day10 {
 
   def main(args: Array[String]): Unit = {
-    val lengths = utils.loadInputAsStrings("2017/day10.txt").head
+    val input = utils.loadInputAsStrings("2017/day10.txt").head
 
-    println(s"Part 1: ${productOfHeadElemsAfterSingleUpdate(lengths)}")
-    println(s"Part 2: ${knotHash(lengths)}")
+    println(s"Part 1: ${productOfHeadElemsAfterSingleUpdate(input)}")
+    println(s"Part 2: ${knotHash(input)}")
   }
 
   final case class State(string: Seq[Int], currPos: Int, skip: Int)
@@ -19,10 +19,10 @@ object Day10 {
       .foldLeft(State(string = 0 to 255, currPos = 0, skip = 0))(updateState)
       .string.take(2).product
 
-  def knotHash(lengths: String): String = {
-    val asciiLengths = lengths.map(_.toInt) ++ Seq(17, 31, 73, 47, 23)
-    val state        = State(string = 0 to 255, currPos = 0, skip = 0)
-    val sparseHash   = (1 to 64).foldLeft(state)((s, _) => asciiLengths.foldLeft(s)(updateState)).string
+  def knotHash(input: String): String = {
+    val nums       = input.map(_.toInt) ++ Seq(17, 31, 73, 47, 23)
+    val state      = State(string = 0 to 255, currPos = 0, skip = 0)
+    val sparseHash = (1 to 64).foldLeft(state)((s, _) => nums.foldLeft(s)(updateState)).string
     sparseHash.grouped(16).map(_.reduce(_ ^ _)).map(v => f"$v%02x").mkString
   }
 

@@ -1,6 +1,6 @@
 package com.github.cosminci.aoc._2017
 
-import scala.util.chaining.scalaUtilChainingOps
+import scala.util.chaining._
 
 object Day14 {
 

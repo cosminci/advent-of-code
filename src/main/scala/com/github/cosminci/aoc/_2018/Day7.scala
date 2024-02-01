@@ -7,16 +7,17 @@ import scala.collection.immutable.TreeSet
 object Day7 {
 
   def main(args: Array[String]): Unit = {
-    val graph = parseInput(utils.loadInputAsStrings("2018/day7.txt"))
+    val edges = parseInput(utils.loadInputAsStrings("2018/day7.txt"))
 
-    println(s"Part 1: ${assembleSleigh(graph, workers = 1).taskOrder}")
-    println(s"Part 2: ${assembleSleigh(graph, workers = 5).time}")
+    println(s"Part 1: ${assembleSleigh(edges, workers = 1).taskOrder}")
+    println(s"Part 2: ${assembleSleigh(edges, workers = 5).time}")
   }
 
   final case class AssemblyResult(taskOrder: String, time: Int)
 
-  def assembleSleigh(parentToChildren: Map[Char, Seq[Char]], workers: Int): AssemblyResult = {
-    val childToParents = reverseGraph(parentToChildren)
+  def assembleSleigh(edges: Seq[(Char, Char)], workers: Int): AssemblyResult = {
+    val parentToChildren = edges.groupMap { case (from, _) => from } { case (_, to) => to }.withDefaultValue(Seq.empty)
+    val childToParents   = edges.groupMap { case (_, to) => to } { case (from, _) => from }.withDefaultValue(Seq.empty)
 
     def newTasksToQueue(justCompleted: Iterable[Char], completed: Seq[Char]) =
       justCompleted.flatMap(parentToChildren).filter(childToParents(_).forall(completed.contains))
@@ -44,16 +45,7 @@ object Day7 {
       Either.cond(timeLeft == timePassed, task, task -> (timeLeft - timePassed))
     }
 
-  private def reverseGraph(parentToChildren: Map[Char, Seq[Char]]) =
-    parentToChildren.foldLeft(Map.empty[Char, Seq[Char]].withDefaultValue(Seq.empty)) {
-      case (graph, (parent, children)) =>
-        children.foldLeft(graph)((graph, child) => graph.updated(child, graph(child) :+ parent))
-    }
-
   private def parseInput(input: Seq[String]) =
-    input.foldLeft(Map.empty[Char, Seq[Char]].withDefaultValue(Seq.empty)) {
-      case (graph, s"Step $from must be finished before step $to can begin.") =>
-        graph.updated(from.head, graph(from.head) :+ to.head)
-    }
+    input.map { case s"Step $from must be finished before step $to can begin." => (from.head, to.head) }
 
 }

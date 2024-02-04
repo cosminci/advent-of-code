@@ -39,19 +39,17 @@ object Day13 {
   private def tickCarts(carts: TreeSet[Cart], grid: Seq[String]) = {
     @annotation.tailrec
     def dfs(initial: TreeSet[Cart], moved: TreeSet[Cart], collisions: Seq[Pos]): (TreeSet[Cart], Seq[Pos]) =
-      initial.headOption match {
-        case None => (moved, collisions)
-        case Some(cart) =>
-          val remaining = initial.tail
+      (initial.headOption, initial.drop(1)) match {
+        case (None, _) => (moved, collisions)
+        case (Some(cart), remaining) =>
           val movedCart = move(cart, grid)
-          if (remaining.contains(movedCart)) dfs(remaining.excl(movedCart), moved, collisions :+ movedCart.pos)
-          else if (moved.contains(movedCart)) dfs(remaining, moved.excl(movedCart), collisions :+ movedCart.pos)
-          else dfs(remaining, moved.incl(movedCart), collisions)
+          if (!(remaining ++ moved).contains(movedCart)) dfs(remaining, moved.incl(movedCart), collisions)
+          else dfs(remaining.excl(movedCart), moved.excl(movedCart), collisions :+ movedCart.pos)
       }
     dfs(initial = carts, moved = TreeSet.empty, collisions = Seq.empty)
   }
 
-  private val dirs = Seq('^', '<', 'v', '>')
+  private val dirs = Seq('^', '<', 'v', '>') // Ordered as when turning left
 
   private def move(cart: Cart, grid: Seq[String]) = {
     val nextX = cart.pos.x + (cart.dir       % 2) * (cart.dir - 2)
@@ -67,10 +65,11 @@ object Day13 {
     Cart(Pos(nextX, nextY), nextDir, nextTurn)
   }
 
-  private def turnJunction(dir: Int, turnIdx: Int) =
-    if (turnIdx == 1) dir
-    else if (turnIdx == 0) (dir + 1) % 4
-    else (dir + 3)                   % 4
+  private def turnJunction(dir: Int, turnIdx: Int) = turnIdx match {
+    case 0 => (dir + 1) % 4
+    case 1 => dir
+    case 2 => (dir + 3) % 4
+  }
 
   private def turnCorner(dir: Int, track: Char) =
     (dir, track) match {

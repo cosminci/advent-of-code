@@ -22,7 +22,7 @@ object Day1 {
     listA.sorted.zip(listB.sorted).map { case (a, b) => (a - b).abs }.sum
 
   private val inputPattern = """(\d+) {3}(\d+)""".r
-  private def parseInput(input: Seq[String]): (Seq[Int], Seq[Int]) =
+  private def parseInput(input: Seq[String]) =
     input
       .map { case inputPattern(a, b) => Seq(a.toInt, b.toInt) }
       .transpose

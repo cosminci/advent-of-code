@@ -10,7 +10,7 @@ object Day2 {
     val reports = parseInput(utils.loadInputAsStrings("2024/day2.txt"))
 
     println(s"Part 1: ${safeReports(reports)}")
-    println(s"Part 1: ${safeReportsWithDampener(reports)}")
+    println(s"Part 2: ${safeReportsWithDampener(reports)}")
   }
 
   def safeReports(reports: Seq[Seq[Int]]) =

@@ -13,12 +13,12 @@ object Day1 {
     println(s"Part 2: ${similarityScore(listA, listB)}")
   }
 
-  def similarityScore(listA: Seq[Int], listB: Seq[Int]) = {
+  def similarityScore(listA: Seq[Int], listB: Seq[Int]): Int = {
     val countsB = listB.groupMapReduce(identity)(_ => 1)(_ + _)
     listA.map(a => a * countsB.getOrElse(a, 0)).sum
   }
 
-  def totalDistance(listA: Seq[Int], listB: Seq[Int]) =
+  def totalDistance(listA: Seq[Int], listB: Seq[Int]): Int =
     listA.sorted.zip(listB.sorted).map { case (a, b) => (a - b).abs }.sum
 
   private val inputPattern = """(\d+) {3}(\d+)""".r

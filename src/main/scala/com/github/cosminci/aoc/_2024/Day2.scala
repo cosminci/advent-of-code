@@ -13,10 +13,10 @@ object Day2 {
     println(s"Part 2: ${safeReportsWithDampener(reports)}")
   }
 
-  def safeReports(reports: Seq[Seq[Int]]) =
+  def safeReports(reports: Seq[Seq[Int]]): Int =
     reports.count(isSafe)
 
-  def safeReportsWithDampener(reports: Seq[Seq[Int]]) = {
+  def safeReportsWithDampener(reports: Seq[Seq[Int]]): Int = {
     val (safe, unsafe) = reports.partition(isSafe)
     safe.size + unsafe.count(canMakeSafe)
   }

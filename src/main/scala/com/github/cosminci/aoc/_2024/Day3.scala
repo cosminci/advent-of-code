@@ -13,13 +13,13 @@ object Day3 {
     println(s"Part 2: ${multiplicationsResultWithActivation(reports)}")
   }
 
-  def multiplicationsResult(memory: String) =
+  def multiplicationsResult(memory: String): Long =
     "mul\\((\\d+),(\\d+)\\)".r
       .findAllIn(memory).matchData
       .map(regexMatch => regexMatch.group(1).toLong * regexMatch.group(2).toLong)
       .sum
 
-  def multiplicationsResultWithActivation(memory: String) =
+  def multiplicationsResultWithActivation(memory: String): Long =
     "(mul\\((\\d+),(\\d+)\\)|don't\\(\\)|do\\(\\))".r
       .findAllIn(memory).matchData
       .foldLeft(0L, true) { case ((result, active), regexMatch) =>

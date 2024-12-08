@@ -14,7 +14,7 @@ object Day8 {
   final case class Pos(r: Int, c: Int)
   final case class Node(freq: Char, pos: Pos)
 
-  private def antinodeCount(grid: Seq[String], findAntinodesFn: Seq[Pos] => Iterator[Pos]) =
+  def antinodeCount(grid: Seq[String], findAntinodesFn: Seq[Pos] => Iterator[Pos]): Int =
     findNodes(grid).values.flatMap(findAntinodesFn).toSet.size
 
   private def findFirstAntinodes(grid: Seq[String])(nodes: Seq[Pos]) =

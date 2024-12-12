@@ -24,13 +24,13 @@ object Day12 {
 
   private def discoverPlot(pos: Pos, grid: Seq[String], visited: Set[Pos]) = {
     @annotation.tailrec
-    def bfs(curr: Set[Pos], plot: Set[Pos]): Set[Pos] =
-      if (curr.isEmpty) plot
+    def bfs(toVisit: Set[Pos], visited: Set[Pos]): Set[Pos] =
+      if (toVisit.isEmpty) visited
       else {
-        val next = curr.flatMap(validNeighbours(_, grid).diff(plot).diff(visited))
-        bfs(next, plot ++ next)
+        val next = toVisit.flatMap(validNeighbours(_, grid).diff(visited).diff(visited))
+        bfs(next, visited ++ next)
       }
-    bfs(curr = Set(pos), plot = Set(pos))
+    bfs(toVisit = Set(pos), visited = Set(pos))
   }
 
   private def perimeter(plot: Set[Pos]) =

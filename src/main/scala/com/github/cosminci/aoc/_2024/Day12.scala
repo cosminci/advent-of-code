@@ -22,12 +22,12 @@ object Day12 {
         else discoverPlot(pos, grid, visited).pipe(p => (visited ++ p, plots + p))
       }.pipe { case (_, plots) => plots.toSeq.map(p => p.size * priceFn(p)).sum }
 
-  private def discoverPlot(pos: Pos, grid: Seq[String], visited: Set[Pos]) = {
+  private def discoverPlot(pos: Pos, grid: Seq[String], globalVisited: Set[Pos]) = {
     @annotation.tailrec
     def bfs(toVisit: Set[Pos], visited: Set[Pos]): Set[Pos] =
       if (toVisit.isEmpty) visited
       else {
-        val next = toVisit.flatMap(validNeighbours(_, grid).diff(visited).diff(visited))
+        val next = toVisit.flatMap(validNeighbours(_, grid).diff(visited).diff(globalVisited))
         bfs(next, visited ++ next)
       }
     bfs(toVisit = Set(pos), visited = Set(pos))

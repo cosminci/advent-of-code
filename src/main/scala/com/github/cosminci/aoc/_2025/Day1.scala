@@ -4,8 +4,7 @@ import com.github.cosminci.aoc.utils.loadInputAsStrings
 
 object Day1 {
 
-  private val startPos = 50
-  private val dialSize = 100
+  private val (startPos, dialSize) = (50, 100)
 
   def main(args: Array[String]): Unit = {
     val commands = parseCommands(loadInputAsStrings("2025/day1.txt"))

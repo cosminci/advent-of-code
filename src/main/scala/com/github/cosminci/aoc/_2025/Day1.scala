@@ -9,16 +9,16 @@ object Day1 {
   def main(args: Array[String]): Unit = {
     val commands = parseCommands(loadInputAsStrings("2025/day1.txt"))
 
-    println(s"Part 1: ${part1(commands)}")
-    println(s"Part 2: ${part2(commands)}")
+    println(s"Part 1: ${countPositionZeroSettled(commands)}")
+    println(s"Part 2: ${countPositionZeroPassed(commands)}")
   }
 
-  def part1(commands: Seq[Int]): Int =
+  def countPositionZeroSettled(commands: Seq[Int]): Int =
     commands
       .scanLeft(startPos)((pos, move) => (pos + dialSize + move) % dialSize)
       .count(_ == 0)
 
-  def part2(rotations: Seq[Int]): Int =
+  def countPositionZeroPassed(rotations: Seq[Int]): Int =
     rotations
       .scanLeft(Seq(startPos))(findAllPositions)
       .flatten

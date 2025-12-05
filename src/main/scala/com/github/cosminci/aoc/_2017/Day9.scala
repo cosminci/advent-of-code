@@ -34,7 +34,7 @@ object Day9 {
     dfs(item = dataStream)
   }
 
-  def parseInput(s: String): StreamItem = {
+  private def parseInput(s: String): StreamItem = {
     val parser = recursive[StreamItem] { recurse =>
       val groupParser    = recurse.repSep0(char(',')).with1.between(char('{'), char('}')).map(Group)
       val garbageContent = ((char('!') *> anyChar).map(_ => 0) | charWhere(_ != '>').map(_ => 1)).rep0.map(_.sum)

@@ -16,18 +16,13 @@ object Day7 {
   final case class Pos(r: Int, c: Int)
 
   def beamSplitCount(start: Pos, grid: Seq[String]): Int = {
-    def moveBeam(beam: Pos) =
-      if (grid(beam.r + 1)(beam.c) == '.') Seq(Pos(beam.r + 1, beam.c))
-      else Seq(Pos(beam.r + 1, beam.c - 1), Pos(beam.r + 1, beam.c + 1))
-
     @annotation.tailrec
     def dfs(beams: Seq[Pos], count: Int): Int =
       if (beams.exists(_.r == grid.length - 1)) count
       else {
-        val newBeams = beams.flatMap(moveBeam)
+        val newBeams = beams.flatMap(moveBeam(_, grid))
         dfs(newBeams.distinct, count + newBeams.size - beams.size)
       }
-
     dfs(Seq(start), count = 0)
   }
 
@@ -35,12 +30,14 @@ object Day7 {
     val mem = mutable.Map.empty[Pos, Long]
     def dfs(beam: Pos): Long = mem.getOrElseUpdate(beam,
       if (beam.r == grid.length - 1) 1
-      else if (grid(beam.r + 1)(beam.c) == '.') dfs(Pos(beam.r + 1, beam.c))
-      else dfs(Pos(beam.r + 1, beam.c - 1)) + dfs(Pos(beam.r + 1, beam.c + 1))
+      else moveBeam(beam, grid).map(dfs).sum
     )
-
     dfs(start)
   }
+
+  private def moveBeam(beam: Pos, grid: Seq[String]) =
+    if (grid(beam.r + 1)(beam.c) == '.') Seq(Pos(beam.r + 1, beam.c))
+    else Seq(Pos(beam.r + 1, beam.c - 1), Pos(beam.r + 1, beam.c + 1))
 
   private def parseInput(lines: Seq[String]) =
     lines.indices

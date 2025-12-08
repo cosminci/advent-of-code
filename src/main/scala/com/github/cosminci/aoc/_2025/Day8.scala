@@ -23,7 +23,7 @@ object Day8 {
     @annotation.tailrec
     def connect(edgeIdx: Int): Long =
       if (edgeIdx == n)
-        boxes.groupBy(uf.find).values.map(_.size.toLong).toSeq.sorted.takeRight(3).product
+        boxes.groupMapReduce(uf.find)(_ => 1L)(_ + _).values.toSeq.sorted.takeRight(3).product
       else {
         uf.union(edges(edgeIdx).p1, edges(edgeIdx).p2)
         connect(edgeIdx + 1)
@@ -35,7 +35,7 @@ object Day8 {
     val uf = new UnionFind[Pos](boxes.toSet.asJava)
     @annotation.tailrec
     def connect(edgeIdx: Int): Long =
-      if (boxes.groupBy(uf.find).values.map(_.size).toSeq.max == boxes.size)
+      if (uf.numberOfSets() == 1)
         edges(edgeIdx - 1).p1.x.toLong * edges(edgeIdx - 1).p2.x
       else {
         uf.union(edges(edgeIdx).p1, edges(edgeIdx).p2)

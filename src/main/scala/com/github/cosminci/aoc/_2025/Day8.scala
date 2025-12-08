@@ -4,7 +4,6 @@ import com.github.cosminci.aoc.utils.loadInputAsStrings
 import org.jgrapht.alg.util.UnionFind
 
 import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.math.BigInt.int2bigInt
 
 object Day8 {
 
@@ -15,7 +14,7 @@ object Day8 {
     println(s"Part 2: ${connectUntilSingleCircuit(boxes, edges)}")
   }
 
-  final case class Pos(x: Int, y: Int, z: Int)
+  final case class Pos(x: Long, y: Long, z: Long)
   final case class Edge(p1: Pos, p2: Pos)
 
   def connectShortestNEdges(boxes: Seq[Pos], edges: Seq[Edge], n: Int): Long = {
@@ -36,7 +35,7 @@ object Day8 {
     @annotation.tailrec
     def connect(edgeIdx: Int): Long =
       if (uf.numberOfSets() == 1)
-        edges(edgeIdx - 1).p1.x.toLong * edges(edgeIdx - 1).p2.x
+        edges(edgeIdx - 1).p1.x * edges(edgeIdx - 1).p2.x
       else {
         uf.union(edges(edgeIdx).p1, edges(edgeIdx).p2)
         connect(edgeIdx + 1)
@@ -44,13 +43,13 @@ object Day8 {
     connect(edgeIdx = 0)
   }
 
-  private def euclidianDistance(e: Edge) =
-    math.sqrt(((e.p1.x - e.p2.x).pow(2) + (e.p1.y - e.p2.y).pow(2) + (e.p1.z - e.p2.z).pow(2)).toDouble)
+  private def euclideanDistance(e: Edge) =
+    math.sqrt(Seq((e.p1.x, e.p2.x), (e.p1.y, e.p2.y), (e.p1.z, e.p2.z)).map { case (a, b) => (a - b) * (a - b) }.sum)
 
   private def parseInput(lines: Seq[String]) = {
-    val boxes = lines.map(_.split(',').map(_.toInt)).map { case Array(x, y, z) => Pos(x, y, z) }
+    val boxes = lines.map(_.split(',').map(_.toLong)).map { case Array(x, y, z) => Pos(x, y, z) }
     val edges = boxes.combinations(2).toSeq.map { case Seq(p1, p2) => Edge(p1, p2) }
-    (boxes, edges.sortBy(euclidianDistance))
+    (boxes, edges.sortBy(euclideanDistance))
   }
 
 }
